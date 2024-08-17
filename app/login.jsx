@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Alert, Pressable, StyleSheet, Text, View } from "react-native";
 import React, { useRef, useState } from "react";
 import ScreenWrapper from "../components/ScreenWrapper";
 import { StatusBar } from "expo-status-bar";
@@ -17,11 +17,11 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
 
   const onSubmit = () => {
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      router.push("home");
-    }, 2000);
+    if (!emailRef.current || !passwordRef.current) {
+      Alert.alert("Login", "Please fill all fields!");
+
+      return;
+    }
   };
 
   return (
