@@ -9,6 +9,7 @@ import { theme } from "../constants/theme";
 import Input from "../components/Input";
 import Icon from "../assets/icons";
 import Button from "../components/Button";
+import { supabase } from "../lib/supabase";
 
 const SignUp = () => {
   const router = useRouter();
@@ -22,6 +23,29 @@ const SignUp = () => {
       Alert.alert("Sign Up", "Please fill all fields!");
 
       return;
+    }
+
+    let name = nameRef.current.trim();
+    let email = emailRef.current.trim();
+    let password = passwordRef.current.trim();
+
+    setLoading(true);
+
+    const {
+      data: { session },
+      error,
+    } = await supabase.auth.signUp({
+      email,
+      password,
+      data: { name },
+    });
+    setLoading(false);
+
+    // console.log("session", session);
+    // console.log("error", error);
+
+    if (error) {
+      Alert.alert("Sign Up", error.message);
     }
   };
 
@@ -111,6 +135,7 @@ const styles = StyleSheet.create({
     color: theme.colors.text,
   },
   footer: {
+    marginTop: hp(5),
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",

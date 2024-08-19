@@ -9,6 +9,7 @@ import { theme } from "../constants/theme";
 import Input from "../components/Input";
 import Icon from "../assets/icons";
 import Button from "../components/Button";
+import { supabase } from "../lib/supabase";
 
 const Login = () => {
   const router = useRouter();
@@ -16,11 +17,30 @@ const Login = () => {
   const passwordRef = useRef("");
   const [loading, setLoading] = useState(false);
 
-  const onSubmit = () => {
+  const onSubmit = async () => {
     if (!emailRef.current || !passwordRef.current) {
       Alert.alert("Login", "Please fill all fields!");
-
       return;
+    }
+
+    let email = emailRef.current.trim();
+    let password = emailRef.current.trim();
+
+    setLoading(true);
+
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        Alert.alert("Login", error.message);
+      }
+    } catch (error) {
+      Alert.alert("Login", "An unexpected error occurred. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -31,7 +51,6 @@ const Login = () => {
         <BackButton router={router} />
 
         {/* welcome */}
-
         <View>
           <Text style={styles.welcomeText}>Hey,</Text>
           <Text style={styles.welcomeText}>Welcome Back</Text>
@@ -62,7 +81,7 @@ const Login = () => {
           <Button title={"Login"} loading={loading} onPress={onSubmit} />
         </View>
 
-        {/* footer  */}
+        {/* footer */}
         <View style={styles.footer}>
           <Text style={styles.footerText}>Don't have an account?</Text>
           <Pressable onPress={() => router.push("signUp")}>
@@ -106,6 +125,7 @@ const styles = StyleSheet.create({
     color: theme.colors.text,
   },
   footer: {
+    marginTop: hp(5),
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
