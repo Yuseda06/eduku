@@ -67,6 +67,7 @@ const Login = () => {
             keyboardType="email-address"
             onChangeText={(value) => (emailRef.current = value)}
             icon={<Icon name="mail" size={26} strokeWidth={1.6} />}
+            autoCapitalize="none"
           />
 
           <Input

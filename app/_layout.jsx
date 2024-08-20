@@ -3,6 +3,7 @@ import React, { useEffect } from "react";
 import { Stack, useRouter } from "expo-router";
 import { AuthProvider, useAuth } from "../contexts/AuthContext";
 import { supabase } from "../lib/supabase";
+import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
 
 const _layout = () => {
   return (
@@ -13,7 +14,7 @@ const _layout = () => {
 };
 
 const MainLayout = () => {
-  const { setAuth } = useAuth();
+  const { setAuth, setUserData } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
@@ -27,6 +28,13 @@ const MainLayout = () => {
       }
     });
   }, []);
+
+  const updateUserData = async (user) => {
+    let res = await getUserData(user?.id);
+    if (res.success) {
+      setUserData(res.data);
+    }
+  };
 
   return <Stack screenOptions={{ headerShown: false }} />;
 };

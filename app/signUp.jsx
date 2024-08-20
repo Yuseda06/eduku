@@ -37,7 +37,11 @@ const SignUp = () => {
     } = await supabase.auth.signUp({
       email,
       password,
-      data: { name },
+      options: {
+        data: {
+          name,
+        },
+      },
     });
     setLoading(false);
 
@@ -77,6 +81,7 @@ const SignUp = () => {
           <Input
             placeholder="Enter your email"
             keyboardType="email-address"
+            autoCapitalize="none"
             onChangeText={(value) => (emailRef.current = value)}
             icon={<Icon name="mail" size={26} strokeWidth={1.6} />}
           />
