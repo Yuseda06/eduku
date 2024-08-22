@@ -4,6 +4,7 @@ import { Stack, useRouter } from "expo-router";
 import { AuthProvider, useAuth } from "../contexts/AuthContext";
 import { supabase } from "../lib/supabase";
 import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
+import { getUserData } from "../services/userService";
 
 const _layout = () => {
   return (
@@ -19,6 +20,8 @@ const MainLayout = () => {
 
   useEffect(() => {
     supabase.auth.onAuthStateChange((_event, session) => {
+      console.log("session", session.user);
+
       if (session) {
         setAuth(session?.user);
         updateUserData(session?.user, session?.user?.email);
@@ -32,6 +35,7 @@ const MainLayout = () => {
 
   const updateUserData = async (user, email) => {
     let res = await getUserData(user?.id);
+    console.log("got user data", res);
     if (res.success) {
       setUserData({ ...res.data, email });
     }

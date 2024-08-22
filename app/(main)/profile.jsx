@@ -51,7 +51,6 @@ const Profile = () => {
 };
 
 const UserHeader = ({ user, router, handleLogout }) => {
-  const userData = user.user_metadata;
   return (
     <View
       style={{ flex: 1, backgroundColor: "white", paddingHorizontal: wp(4) }}
@@ -67,7 +66,7 @@ const UserHeader = ({ user, router, handleLogout }) => {
         <View style={{ gap: 15 }}>
           <View style={styles.avatarContainer}>
             <Avatar
-              uri={userData?.image}
+              uri={user?.image}
               size={hp(12)}
               rounded={theme.radius.xxl * 1.4}
             />
@@ -79,14 +78,11 @@ const UserHeader = ({ user, router, handleLogout }) => {
             </Pressable>
           </View>
 
-          {/* username and address */}
-
           <View style={{ alignItems: "center", gap: 4 }}>
-            <Text style={styles.userName}>{userData && userData.name}</Text>
-            <Text style={styles.infoText}>{userData && userData.address}</Text>
+            <Text style={styles.userName}>{user && user.name}</Text>
+            <Text style={styles.infoText}>{user && user.address}</Text>
           </View>
 
-          {/* user info */}
           <View style={{ gap: 10 }}>
             <View style={styles.info}>
               <Icon name="mail" size={20} color={theme.colors.textLight} />
@@ -96,16 +92,13 @@ const UserHeader = ({ user, router, handleLogout }) => {
 
           {user && user.phoneNumber && (
             <View style={styles.info}>
-              <Icon name="phone" size={20} color={theme.colors.textLight} />
-              <Text style={styles.infoText}>{user && user.phoneNumber}</Text>
+              <Icon name="call" size={20} color={theme.colors.textLight} />
+              <Text style={styles.infoText}>{user.phoneNumber}</Text>
             </View>
           )}
 
           {user && user.bio && (
-            <View style={styles.info}>
-              <Icon name="user" size={20} color={theme.colors.textLight} />
-              <Text style={styles.infoText}>{user && user.bio}</Text>
-            </View>
+            <Text style={styles.infoText}>{user && user.bio}</Text>
           )}
         </View>
       </View>

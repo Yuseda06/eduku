@@ -24,9 +24,12 @@ const Login = () => {
     }
 
     let email = emailRef.current.trim();
-    let password = emailRef.current.trim();
+    let password = passwordRef.current.trim();
 
     setLoading(true);
+
+    console.log("email", email);
+    console.log("password", password);
 
     try {
       const { error } = await supabase.auth.signInWithPassword({
