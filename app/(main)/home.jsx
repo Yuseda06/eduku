@@ -51,9 +51,6 @@ const Home = () => {
           <Text style={styles.noPosts}>No posts yet</Text>
         </View>
       </View>
-      <View style={styles.logout}>
-        <Button title="Logout" onPress={onLogout} />
-      </View>
     </ScreenWrapper>
   );
 };
