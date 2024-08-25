@@ -21,8 +21,6 @@ export const getUserData = async (userId) => {
 };
 
 export const updateUser = async (userId, data) => {
-  console.log("userId", userId);
-  console.log("data", data);
   try {
     const { error } = await supabase
       .from("users")
@@ -35,6 +33,23 @@ export const updateUser = async (userId, data) => {
     return {
       success: true,
       data,
+    };
+  } catch (error) {
+    return { success: false, msg: error?.message };
+  }
+};
+
+export const getAllUsers = async () => {
+  try {
+    const { data: users, error } = await supabase.from("users").select("*");
+
+    if (error) {
+      return { success: false, msg: error?.message };
+    }
+
+    return {
+      success: true,
+      data: users, // Return users instead of data
     };
   } catch (error) {
     return { success: false, msg: error?.message };

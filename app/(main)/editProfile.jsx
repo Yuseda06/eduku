@@ -72,7 +72,6 @@ const EditProfile = () => {
       return;
     }
     setLoading(true);
-    console.log("image.uri", image.uri);
     if (typeof image == "object") {
       let imageRes = await uploadFile("profiles", image?.uri, true);
       if (imageRes.success) userData.image = imageRes.data;

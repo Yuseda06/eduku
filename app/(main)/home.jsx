@@ -1,5 +1,5 @@
 import { Alert, Button, Pressable, StyleSheet, Text, View } from "react-native";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import ScreenWrapper from "../../components/ScreenWrapper";
 import { useAuth } from "../../contexts/AuthContext";
 import { supabase } from "../../lib/supabase";
@@ -8,21 +8,35 @@ import { theme } from "../../constants/theme";
 import Icon from "../../assets/icons";
 import { useRouter } from "expo-router";
 import Avatar from "../../components/Avatar";
+import { getAllUsers } from "../../services/userService";
+import UsersList from "../../components/UserList";
 
 const Home = () => {
   const { user, setAuth } = useAuth();
   const router = useRouter();
+
+  const [post, setPosts] = useState([]);
+
+  useEffect(() => {
+    getPosts();
+  }, []);
+
+  const getPosts = async () => {
+    //call api here
+  };
+
   const onLogout = async () => {
     const { error } = await supabase.auth.signOut();
     if (error) {
       Alert.alert("Logout", error.message);
     }
   };
+
   return (
     <ScreenWrapper bg="white">
       <View style={styles.container}>
         <View style={styles.header}>
-          <Text style={styles.title}>LinkUp</Text>
+          <Text style={styles.title}>Dashboard</Text>
           <View style={styles.icons}>
             <Pressable
               title="Add Post"
@@ -49,6 +63,10 @@ const Home = () => {
         </View>
         <View style={styles.listStyle}>
           <Text style={styles.noPosts}>No posts yet</Text>
+        </View>
+
+        <View>
+          <UsersList />
         </View>
       </View>
     </ScreenWrapper>
