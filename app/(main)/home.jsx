@@ -25,12 +25,12 @@ const Home = () => {
     //call api here
   };
 
-  const onLogout = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      Alert.alert("Logout", error.message);
-    }
-  };
+  // const onLogout = async () => {
+  //   const { error } = await supabase.auth.signOut();
+  //   if (error) {
+  //     Alert.alert("Logout", error.message);
+  //   }
+  // };
 
   return (
     <ScreenWrapper bg="white">
