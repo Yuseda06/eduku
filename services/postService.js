@@ -20,11 +20,29 @@ export const createOrUpdatePost = async (post) => {
       .single();
 
     if (error) {
-      return { success: false, msg: "Could not create your post" };
+      return { success: false, msg: "Could not create your essay" };
     }
     return { success: true, data };
   } catch (error) {
-    return { success: false, msg: "Could not create your post" };
+    return { success: false, msg: "Could not create your essay" };
+    throw error;
+  }
+};
+
+export const fetchPosts = async (limit = 10) => {
+  try {
+    const { data, error } = await supabase
+      .from("posts")
+      .select(`*, user: users (id, name, image)`)
+      .order("created_at", { ascending: false })
+      .limit(limit);
+    if (error) {
+      return { success: false, msg: "Could not fetch the posts" };
+    }
+
+    return { success: true, data: data };
+  } catch (error) {
+    return { success: false, msg: "Could not fetch the posts" };
     throw error;
   }
 };

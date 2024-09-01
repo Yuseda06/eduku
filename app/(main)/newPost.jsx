@@ -1,14 +1,16 @@
 import {
   Alert,
   Image,
+  Keyboard,
   Pressable,
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useImperativeHandle } from "react";
 import ScreenWrapper from "../../components/ScreenWrapper";
 import Header from "../../components/Header";
 import { hp, wp } from "../../helpers/common";
@@ -23,6 +25,7 @@ import * as ImagePicker from "expo-image-picker";
 import { getSupabaseFileUrl } from "../../services/imageService";
 import { Video } from "expo-av";
 import { createOrUpdatePost } from "../../services/postService";
+import { TouchableWithoutFeedback } from "react-native";
 
 const NewPost = () => {
   const { user } = useAuth();
@@ -31,6 +34,13 @@ const NewPost = () => {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [file, setFile] = useState(false);
+
+  const handlePressOutside = () => {
+    // Blur the content editor if the method exists
+    if (editorRef.current?.blurContentEditor) {
+      editorRef.current.blurContentEditor();
+    }
+  };
 
   const onPick = async (isImage) => {
     let mediaConfig = {
@@ -114,71 +124,78 @@ const NewPost = () => {
 
   return (
     <ScreenWrapper bg="white">
-      <View style={styles.container}>
-        <Header title="Create Post" />
-        <ScrollView contentContainerStyle={{ gap: 20 }}>
-          <View style={styles.header}>
-            <Avatar
-              uri={user?.image}
-              size={hp(6.5)}
-              rounded={theme.radius.xl}
-            />
-            <View style={{ gap: 2 }}>
-              <Text style={styles.username}>{user && user?.name}</Text>
-              <Text style={styles.publicText}>Public</Text>
-            </View>
-          </View>
+      <TouchableWithoutFeedback onPress={handlePressOutside}>
+        <View style={styles.container}>
+          <Header title="Create Post" />
 
-          <View style={styles.textEditor}>
-            <RichTextEditor
-              editorRef={editorRef}
-              onChange={(body) => (bodyRef.current = body)}
-            />
-          </View>
-
-          {file && (
-            <View style={styles.file}>
-              {getFileType(file) == "video" ? (
-                <Video
-                  style={{ flex: 1 }}
-                  source={{ uri: getFileUri(file) }}
-                  resizeMode="cover"
-                  useNativeControls
-                  isLooping
-                />
-              ) : (
-                <Image
-                  source={{ uri: getFileUri(file) }}
-                  resizeMode="cover"
-                  style={{ flex: 1 }}
-                />
-              )}
-              <Pressable style={styles.closeIcon} onPress={() => setFile(null)}>
-                <Icon name="delete" size={25} color="white" />
-              </Pressable>
+          <ScrollView contentContainerStyle={{ gap: 20 }}>
+            <View style={styles.header}>
+              <Avatar
+                uri={user?.image}
+                size={hp(6.5)}
+                rounded={theme.radius.xl}
+              />
+              <View style={{ gap: 2 }}>
+                <Text style={styles.username}>{user && user?.name}</Text>
+                <Text style={styles.publicText}>Public</Text>
+              </View>
             </View>
-          )}
 
-          <View style={styles.media}>
-            <Text style={styles.addImageText}>Add to your post</Text>
-            <View style={styles.mediaIcons}>
-              <TouchableOpacity onPress={() => onPick(true)}>
-                <Icon name="image" size={30} color={theme.colors.dark} />
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => onPick(false)}>
-                <Icon name="video" size={33} color={theme.colors.dark} />
-              </TouchableOpacity>
+            <View style={styles.textEditor}>
+              <RichTextEditor
+                editorRef={editorRef}
+                onChange={(body) => (bodyRef.current = body)}
+              />
             </View>
-          </View>
-        </ScrollView>
-        <Button
-          buttonStyle={{ height: hp(6.2) }}
-          title="Post"
-          loading={loading}
-          hasShadow={false}
-          onPress={onSubmit}
-        />
-      </View>
+
+            {file && (
+              <View style={styles.file}>
+                {getFileType(file) == "video" ? (
+                  <Video
+                    style={{ flex: 1 }}
+                    source={{ uri: getFileUri(file) }}
+                    resizeMode="cover"
+                    useNativeControls
+                    isLooping
+                  />
+                ) : (
+                  <Image
+                    source={{ uri: getFileUri(file) }}
+                    resizeMode="cover"
+                    style={{ flex: 1 }}
+                  />
+                )}
+                <Pressable
+                  style={styles.closeIcon}
+                  onPress={() => setFile(null)}
+                >
+                  <Icon name="delete" size={25} color="white" />
+                </Pressable>
+              </View>
+            )}
+
+            <View style={styles.media}>
+              <Text style={styles.addImageText}>Add to your post</Text>
+              <View style={styles.mediaIcons}>
+                <TouchableOpacity onPress={() => onPick(true)}>
+                  <Icon name="image" size={30} color={theme.colors.dark} />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => onPick(false)}>
+                  <Icon name="video" size={33} color={theme.colors.dark} />
+                </TouchableOpacity>
+              </View>
+            </View>
+          </ScrollView>
+
+          <Button
+            buttonStyle={{ height: hp(6.2) }}
+            title="Post"
+            loading={loading}
+            hasShadow={false}
+            onPress={onSubmit}
+          />
+        </View>
+      </TouchableWithoutFeedback>
     </ScreenWrapper>
   );
 };

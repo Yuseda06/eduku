@@ -1,5 +1,11 @@
-import { StyleSheet, Text, View } from "react-native";
-import React from "react";
+import {
+  Keyboard,
+  StyleSheet,
+  Text,
+  TouchableWithoutFeedback,
+  View,
+} from "react-native";
+import React, { useEffect, useRef } from "react";
 import {
   actions,
   RichEditor,
@@ -40,13 +46,13 @@ const RichTextEditor = ({ editorRef, onChange }) => {
         disable={false}
         selectedIconTint={theme.colors.primaryDark}
       />
-
       <RichEditor
         ref={editorRef}
         containerStyle={styles.rich}
         editorStyle={styles.contentStyle}
         placeholder="What's on your mind?"
         onChange={onChange}
+        blurContentEditor={() => Keyboard.dismiss()}
       />
     </View>
   );
