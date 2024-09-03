@@ -20,11 +20,11 @@ export const createOrUpdatePost = async (post) => {
       .single();
 
     if (error) {
-      return { success: false, msg: "Could not create your essay" };
+      return { success: false, msg: "Could not create your post" };
     }
     return { success: true, data };
   } catch (error) {
-    return { success: false, msg: "Could not create your essay" };
+    return { success: false, msg: "Could not create your post" };
     throw error;
   }
 };

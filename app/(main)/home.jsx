@@ -84,11 +84,7 @@ const Home = () => {
               <Icon name="edit" size={hp(3.2)} color={theme.colors.textLight} />
             </Pressable>
             <Pressable title="Add Post" onPress={() => router.push("essay")}>
-              <Icon
-                name="heart"
-                size={hp(3.2)}
-                color={theme.colors.textLight}
-              />
+              <Icon name="home" size={hp(3.2)} color={theme.colors.textLight} />
             </Pressable>
             <Pressable title="Add Post" onPress={() => router.push("newPost")}>
               <Icon name="plus" size={hp(3.2)} color={theme.colors.textLight} />
@@ -114,7 +110,8 @@ const Home = () => {
           )}
           ListFooterComponent={
             <View style={{ marginVertical: posts.length == 0 ? 200 : 30 }}>
-              <Loading />
+              {/* <Loading /> */}
+              <Text style={{ textAlign: "center" }}>Post is end here</Text>
             </View>
           }
         />

@@ -7,6 +7,7 @@ import {
   StyleSheet,
   Text,
   TextInput,
+  TextInputComponent,
   TouchableOpacity,
   View,
 } from "react-native";
@@ -27,81 +28,28 @@ import { Video } from "expo-av";
 import { createOrUpdatePost } from "../../services/postService";
 import { TouchableWithoutFeedback } from "react-native";
 import { insertEssay } from "../../services/essayService";
+import { Input } from "@rneui/themed";
 
 const CreateEssay = () => {
   const { user } = useAuth();
   const bodyRef = useRef("");
   const editorRef = useRef(null);
+
+  const titleRef = useRef("");
+  const editorTitleRef = useRef(null);
+
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [file, setFile] = useState(false);
 
-  const handlePressOutside = () => {
-    // Blur the content editor if the method exists
-    if (editorRef.current?.blurContentEditor) {
-      editorRef.current.blurContentEditor();
-    }
-  };
-
-  const onPick = async (isImage) => {
-    let mediaConfig = {
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 0.7,
-    };
-
-    if (!isImage) {
-      mediaConfig = {
-        mediaTypes: ImagePicker.MediaTypeOptions.Videos,
-        allowsEditing: true,
-      };
-    }
-
-    let result = await ImagePicker.launchImageLibraryAsync(mediaConfig);
-
-    if (!result.canceled) {
-      setFile(result.assets[0]);
-    }
-  };
-
-  const isLocalFile = (file) => {
-    if (!file) return null;
-    if (typeof file == "object") return true;
-
-    return false;
-  };
-
-  const getFileType = (file) => {
-    if (!file) return null;
-    if (isLocalFile(file)) {
-      return file.type;
-    }
-
-    // check image or video for remote file
-
-    if (file.includes("postImages")) {
-      return "image";
-    }
-
-    return "video";
-  };
-
-  const getFileUri = (file) => {
-    if (!file) return null;
-    if (isLocalFile(file)) {
-      return file.uri;
-    }
-
-    // check image or video for remote file
-    return getSupabaseFileUrl(file)?.uri;
-  };
-
   const onSubmit = async () => {
     let data = {
+      title: titleRef.current,
       essay: bodyRef.current,
       userId: user?.id,
     };
+
+    console.log(data);
 
     setLoading(true);
     let res = await insertEssay(data);
@@ -118,7 +66,7 @@ const CreateEssay = () => {
 
   return (
     <ScreenWrapper bg="white">
-      <TouchableWithoutFeedback onPress={handlePressOutside}>
+      <TouchableWithoutFeedback>
         <View style={styles.container}>
           <Header title="Create an Essay" />
 
@@ -136,6 +84,15 @@ const CreateEssay = () => {
             </View>
 
             <View style={styles.textEditor}>
+              <View style={{ flexDirection: "column" }}>
+                <Text
+                  style={[styles.publicText, { marginLeft: 10, marginTop: 10 }]}
+                >
+                  Title of an Essay
+                </Text>
+                <Input onChangeText={(text) => (titleRef.current = text)} />
+              </View>
+
               <RichTextEditor
                 editorRef={editorRef}
                 onChange={(body) => (bodyRef.current = body)}

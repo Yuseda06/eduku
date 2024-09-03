@@ -1,6 +1,17 @@
-import { FlatList, StyleSheet, Text, View } from "react-native";
+import {
+  FlatList,
+  Pressable,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import React, { useEffect, useState } from "react";
-import { fetchEssay } from "../../services/essayService";
+import {
+  deleteEssay,
+  fetchAllEssay,
+  fetchEssay,
+} from "../../services/essayService";
 import { getUserData } from "../../services/userService";
 import { supabase } from "../../lib/supabase";
 import ScreenWrapper from "../../components/ScreenWrapper";
@@ -10,60 +21,61 @@ import Loading from "../../components/Loading";
 import { theme } from "../../constants/theme";
 import { useAuth } from "../../contexts/AuthContext";
 import Header from "../../components/Header";
+import { useRouter } from "expo-router";
+import EssayCard from "../../components/EssayCard";
+import Button from "../../components/Button";
+import Icon from "../../assets/icons";
 
 const Essay = () => {
   const [essays, setEssays] = useState([]);
   const { user, setAuth } = useAuth();
-
-  const handleEssayEvent = async (payload) => {
-    if (payload?.eventType == "INSERT" && payload?.new?.id) {
-      let newEssay = { ...payload.new };
-      let res = await getUserData(newEssay.userId);
-      console.log("res", res);
-      newEssay.user = res.success ? res.data : {};
-      setEssays((prevEssays) => [newEssay, ...prevEssays]);
-    }
-  };
-
-  console.log("essays :>> ", essays);
+  const router = useRouter();
 
   useEffect(() => {
-    let EssayChannel = supabase
-      .channel("english")
-      .on(
-        "Postgres_changes",
-        { event: "*", schema: "public", table: "english" },
-        handleEssayEvent
-      )
-      .subscribe();
+    getAllEssay();
+  }, [essays]);
 
-    getEssays();
-
-    return () => {
-      supabase.removeChannel(EssayChannel);
-    };
-  }, []);
-
-  const getEssays = async () => {
-    limit = limit + 10;
-    let res = await fetchEssays(limit);
+  const getAllEssay = async () => {
+    let res = await fetchAllEssay();
     if (res.success) {
       setEssays(res.data);
+    } else {
+      // Handle error case, e.g., display a notification or error message
     }
   };
 
   return (
     <ScreenWrapper bg="white">
       <View style={styles.container}>
-        <Header title="Essays" />
-        <Text style={styles.title}>Essays</Text>
+        <View style={{ marginLeft: 12 }}>
+          <Header title="Essays" />
+          <Pressable
+            title="Add Post"
+            onPress={() => router.push("notifications")}
+            style={{
+              alignSelf: "flex-end",
+              marginTop: -32,
+              marginRight: 12,
+              marginBottom: 20,
+            }}
+          >
+            <Icon name="edit" size={hp(3.2)} color={theme.colors.textLight} />
+          </Pressable>
+
+          {essays.length == 0 && (
+            <Text style={[styles.noPosts, { marginTop: 50 }]}>
+              No essays yet
+            </Text>
+          )}
+        </View>
+
         <FlatList
           data={essays}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.listStyle}
           keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => (
-            <PostCard item={item} currentUser={user} router={router} />
+            <EssayCard item={item} currentUser={user} router={router} />
           )}
           ListFooterComponent={
             <View style={{ marginVertical: essays.length == 0 ? 200 : 30 }}>
@@ -81,6 +93,7 @@ export default Essay;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    marginHorizontal: 8,
   },
   header: {
     flexDirection: "row",

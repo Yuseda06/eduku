@@ -31,6 +31,8 @@ const RichTextEditor = ({ editorRef, onChange }) => {
           actions.line,
           actions.heading1,
           actions.heading4,
+          "customFontSize", // Custom action for font size
+          "customFontFamily", // Custom action for font family
         ]}
         iconMap={{
           [actions.heading1]: ({ tintColor }) => (
@@ -39,12 +41,27 @@ const RichTextEditor = ({ editorRef, onChange }) => {
           [actions.heading4]: ({ tintColor }) => (
             <Text style={{ color: tintColor }}>H4</Text>
           ),
+          customFontSize: ({ tintColor }) => (
+            <Text style={{ color: tintColor, fontSize: 16 }}>A+</Text>
+          ),
+          customFontFamily: ({ tintColor }) => (
+            <Text style={{ color: tintColor, fontFamily: "arial" }}>Aa</Text>
+          ),
         }}
         style={styles.richBar}
         flatContainerStyle={styles.flatStyle}
         editor={editorRef}
         disable={false}
         selectedIconTint={theme.colors.primaryDark}
+        onPressAddImage={() => console.log("Add Image Pressed")}
+        onPress={(action) => {
+          if (action === "customFontSize") {
+            editorRef.current?.setFontSize(20); // Example: Set font size to 20
+          }
+          if (action === "customFontFamily") {
+            editorRef.current?.setFontFamily("arial"); // Example: Set font family to serif
+          }
+        }}
       />
       <RichEditor
         ref={editorRef}
