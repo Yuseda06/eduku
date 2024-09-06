@@ -21,6 +21,7 @@ import queryString from "query-string";
 import * as ScreenOrientation from "expo-screen-orientation";
 import { deleteEssay } from "../services/essayService";
 import { useRouter } from "expo-router";
+import { getUserData } from "../services/userService";
 
 const tagsStyles = {
   div: textStyles,
@@ -39,22 +40,31 @@ const textStyles = {
   fontSize: hp(1.75),
 };
 
-const EssayCard = ({ item, currentUser, hasShadow = true }) => {
+const EssayCard = ({ item, currentUser, hasShadow = true, allUsers }) => {
   const liked = false;
   const likes = [];
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const [sentence, setSentence] = useState(item?.essay);
   const [voices, setVoices] = useState([]);
+  const [userName, setUserName] = useState("");
+  const [userImage, setUserImage] = useState("");
 
   useEffect(() => {
-    const getVoices = async () => {
-      const availableVoices = await Speech.getAvailableVoicesAsync();
-      setVoices(availableVoices);
-    };
+    setSentence(item?.essay.replace(/<\/?[^>]+(>|$)/g, ""));
+  }, [item]);
 
-    getVoices();
-  }, []);
+  useEffect(() => {
+    if (allUsers && allUsers.data) {
+      const matchingUser = allUsers.data.find(
+        (user) => user.id === item.userId
+      );
+      if (matchingUser) {
+        setUserName(matchingUser.name);
+        setUserImage(matchingUser.image);
+      }
+    }
+  }, [allUsers, item.userId]);
 
   const shadowStyles = {
     shadowOffset: {
@@ -101,9 +111,7 @@ const EssayCard = ({ item, currentUser, hasShadow = true }) => {
   };
 
   const handleWordPress = (word) => {
-    Speech.speak(word, {
-      voice: "com.apple.voice.compact.en-US.Samantha",
-    });
+    Speech.speak(word);
   };
 
   const translate = async (text, sourceLanguage, targetLanguage) => {
@@ -135,13 +143,9 @@ const EssayCard = ({ item, currentUser, hasShadow = true }) => {
     <View style={[styles.container, hasShadow && shadowStyles]}>
       <View style={styles.header}>
         <View style={styles.userInfo}>
-          <Avatar
-            size={hp(4.5)}
-            uri={currentUser?.image}
-            rounded={theme.radius.md}
-          />
+          <Avatar size={hp(4.5)} uri={userImage} rounded={theme.radius.md} />
           <View style={{ gap: 2 }}>
-            <Text style={styles.username}>{currentUser?.name}</Text>
+            <Text style={styles.username}>{userName}</Text>
             <Text style={styles.postTime}>{createdAt}</Text>
           </View>
         </View>
@@ -150,16 +154,16 @@ const EssayCard = ({ item, currentUser, hasShadow = true }) => {
           <TouchableOpacity onPress={Speech.stop}>
             <Icon
               name="stop"
-              size={hp(3.9)}
-              strokeWidth={5}
-              color={theme.colors.darkLight}
+              size={hp(3.6)}
+              strokeWidth={1}
+              color={theme.colors.textLight}
             />
           </TouchableOpacity>
           <TouchableOpacity onPress={() => handleSentencePress(sentence)}>
             <Icon
               name="read"
               size={hp(3.6)}
-              strokeWidth={2}
+              strokeWidth={1}
               color={theme.colors.textLight}
             />
           </TouchableOpacity>
@@ -179,10 +183,11 @@ const EssayCard = ({ item, currentUser, hasShadow = true }) => {
             styles.username,
             {
               marginTop: 30,
-              fontSize: hp(3.4),
+              fontSize: hp(2.6),
               fontFamily: "arial",
               fontWeight: "600",
               textAlign: "center",
+              color: theme.colors.primary,
             },
           ]}
         >

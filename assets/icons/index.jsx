@@ -24,6 +24,7 @@ import Image from "./Image";
 import Video from "./Video";
 import Read from "./Read";
 import Stop from "./Stop";
+import Book from "./Book";
 
 const icons = {
   home: Home,
@@ -49,6 +50,7 @@ const icons = {
   video: Video,
   read: Read,
   stop: Stop,
+  book: Book,
 };
 
 const Icon = ({ name, ...props }) => {

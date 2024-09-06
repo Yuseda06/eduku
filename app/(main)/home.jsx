@@ -83,8 +83,8 @@ const Home = () => {
             >
               <Icon name="edit" size={hp(3.2)} color={theme.colors.textLight} />
             </Pressable>
-            <Pressable title="Add Post" onPress={() => router.push("essay")}>
-              <Icon name="home" size={hp(3.2)} color={theme.colors.textLight} />
+            <Pressable title="Add Post" onPress={() => router.push("lessons")}>
+              <Icon name="book" size={hp(3.2)} color={theme.colors.textLight} />
             </Pressable>
             <Pressable title="Add Post" onPress={() => router.push("newPost")}>
               <Icon name="plus" size={hp(3.2)} color={theme.colors.textLight} />

@@ -12,7 +12,7 @@ import {
   fetchAllEssay,
   fetchEssay,
 } from "../../services/essayService";
-import { getUserData } from "../../services/userService";
+import { getAllUsers, getUserData } from "../../services/userService";
 import { supabase } from "../../lib/supabase";
 import ScreenWrapper from "../../components/ScreenWrapper";
 import { hp, wp } from "../../helpers/common";
@@ -30,15 +30,31 @@ const Essay = () => {
   const [essays, setEssays] = useState([]);
   const { user, setAuth } = useAuth();
   const router = useRouter();
+  const [users, setUsers] = useState([]);
 
   useEffect(() => {
     getAllEssay();
+    getUsers();
   }, [essays]);
+
+  // console.log("users", users.data[0].id);
+
+  const getUsers = async () => {
+    let res = await getAllUsers();
+    if (res.success) {
+      setUsers(res);
+    } else {
+      // Handle error case, e.g., display a notification or error message
+    }
+  };
 
   const getAllEssay = async () => {
     let res = await fetchAllEssay();
     if (res.success) {
       setEssays(res.data);
+      // console.log("first", res.data[1].userId);
+      // let res = await getUserData(res.data.userId);
+      // setUsers(res);
     } else {
       // Handle error case, e.g., display a notification or error message
     }
@@ -75,12 +91,17 @@ const Essay = () => {
           contentContainerStyle={styles.listStyle}
           keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => (
-            <EssayCard item={item} currentUser={user} router={router} />
+            <EssayCard
+              item={item}
+              currentUser={user}
+              router={router}
+              allUsers={users}
+            />
           )}
           ListFooterComponent={
-            <View style={{ marginVertical: essays.length == 0 ? 200 : 30 }}>
-              {/* <Loading /> */}
-            </View>
+            <View
+              style={{ marginVertical: essays.length == 0 ? 200 : 30 }}
+            ></View>
           }
         />
       </View>
