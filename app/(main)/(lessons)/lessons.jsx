@@ -42,7 +42,7 @@ const Lessons = () => {
 
   const lessonsList = [
     { id: 1, title: "Multiplication" },
-    { id: 2, title: "Addition" },
+    { id: 2, title: "Short Essay" },
     { id: 3, title: "Subtraction" },
     { id: 4, title: "Division" },
   ];
@@ -50,6 +50,8 @@ const Lessons = () => {
   const goToLesson = (lesson) => {
     if (lesson === "Multiplication") {
       router.push(lesson.toLowerCase());
+    } else if (lesson === "Short Essay") {
+      router.push("essay");
     }
   };
 

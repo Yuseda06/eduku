@@ -15,6 +15,8 @@ import { useRouter } from "expo-router";
 import Icon from "../../../assets/icons";
 import { useEffect, useState } from "react";
 import { Button } from "react-native";
+import { Audio } from "expo-av";
+import * as Speech from "expo-speech";
 
 const generateMultiplicationQuestions = () => {
   const questions = [];
@@ -30,12 +32,32 @@ const generateMultiplicationQuestions = () => {
   return questions;
 };
 
-const useMultiplicationQuestions = () => {
+const useMultiplicationQuestions = (selectedNumber) => {
   const [questions, setQuestions] = useState([]);
 
   useEffect(() => {
-    setQuestions(generateMultiplicationQuestions());
-  }, []);
+    const newQuestions = [];
+    while (newQuestions.length < 20) {
+      const num1 =
+        selectedNumber === "random"
+          ? Math.floor(Math.random() * 9) + 4
+          : selectedNumber || Math.floor(Math.random() * 9) + 4;
+      const num2 = Math.floor(Math.random() * 9) + 4;
+      if (
+        selectedNumber === "random" ||
+        !selectedNumber ||
+        num1 === selectedNumber ||
+        num2 === selectedNumber
+      ) {
+        newQuestions.push({
+          id: newQuestions.length + 1,
+          question: `${num1} × ${num2} = ?`,
+          answer: num1 * num2,
+        });
+      }
+    }
+    setQuestions(newQuestions);
+  }, [selectedNumber]);
 
   return questions;
 };
@@ -44,9 +66,18 @@ const QuestionCard = ({ question, answer, onAnswer }) => {
   const [userAnswer, setUserAnswer] = useState("");
   const [isCorrect, setIsCorrect] = useState(null);
 
+  const speakFeedback = (correct) => {
+    Speech.speak(correct ? "Correct" : "Wrong", {
+      language: "en",
+      pitch: 1,
+      rate: 0.75,
+    });
+  };
+
   const handleSubmit = () => {
     const correct = parseInt(userAnswer) === answer;
     setIsCorrect(correct);
+    speakFeedback(correct);
     onAnswer(correct);
     setUserAnswer("");
   };
@@ -62,38 +93,16 @@ const QuestionCard = ({ question, answer, onAnswer }) => {
         placeholder="Enter your answer"
         placeholderTextColor={theme.colors.textLight}
       />
-      <TouchableOpacity
-        style={{
-          backgroundColor: theme.colors.primary,
-          paddingVertical: 10,
-          paddingHorizontal: 20,
-          borderRadius: theme.radius.md,
-          shadowColor: "#000",
-          shadowOffset: {
-            width: 0,
-            height: 2,
-          },
-          shadowOpacity: 0.25,
-          shadowRadius: 3.84,
-          elevation: 5,
-          marginTop: 20,
-          marginBottom: 20,
-        }}
-        onPress={handleSubmit}
-      >
-        <Text
-          style={{
-            color: "white",
-            fontWeight: "bold",
-            textAlign: "center",
-            fontSize: 16,
-          }}
-        >
-          Submit
-        </Text>
+      <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
+        <Text style={styles.submitButtonText}>Submit</Text>
       </TouchableOpacity>
       {isCorrect !== null && (
-        <Text style={isCorrect ? styles.correctText : styles.incorrectText}>
+        <Text
+          style={[
+            styles.feedbackText,
+            isCorrect ? styles.correctText : styles.incorrectText,
+          ]}
+        >
           {isCorrect ? "Correct!" : "Incorrect. Try again!"}
         </Text>
       )}
@@ -103,17 +112,59 @@ const QuestionCard = ({ question, answer, onAnswer }) => {
 
 const Multiplication = () => {
   const router = useRouter();
-  const questions = useMultiplicationQuestions();
+  const [selectedNumber, setSelectedNumber] = useState(null);
+  const questions = useMultiplicationQuestions(selectedNumber);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [score, setScore] = useState(0);
 
+  const handleNumberSelection = (number) => {
+    setSelectedNumber(number);
+    setCurrentQuestionIndex(0);
+    setScore(0);
+  };
+
   const handleAnswer = (correct) => {
     if (correct) {
-      setScore(score + 1);
+      const newScore = score + 1;
+      setScore(newScore);
+      if (newScore === 20) {
+        Speech.speak("Hurray! You've completed all 20 questions correctly!", {
+          language: "en",
+          pitch: 1,
+          rate: 0.75,
+        });
+      }
     }
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
     }
+  };
+
+  const renderNumberButtons = () => {
+    const buttons = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((num) => (
+      <TouchableOpacity
+        key={num}
+        style={[
+          styles.numberButton,
+          selectedNumber === num && styles.selectedButton,
+        ]}
+        onPress={() => handleNumberSelection(num)}
+      >
+        <Text style={styles.numberButtonText}>{num}</Text>
+      </TouchableOpacity>
+    ));
+
+    buttons.push(
+      <TouchableOpacity
+        key="random"
+        style={[styles.numberButton, styles.randomButton]}
+        onPress={() => handleNumberSelection("random")}
+      >
+        <Text style={styles.numberButtonText}>Random</Text>
+      </TouchableOpacity>
+    );
+
+    return buttons;
   };
 
   return (
@@ -139,15 +190,27 @@ const Multiplication = () => {
         </Pressable>
       </View>
       <View style={styles.container}>
-        <Text style={styles.scoreText}>
-          Score: {score}/{questions.length}
-        </Text>
-        {questions.length > 0 && (
-          <QuestionCard
-            question={questions[currentQuestionIndex].question}
-            answer={questions[currentQuestionIndex].answer}
-            onAnswer={handleAnswer}
-          />
+        <Text style={styles.instructionText}>Select a number to practice:</Text>
+        <View style={styles.numberButtonsContainer}>
+          {renderNumberButtons()}
+        </View>
+        {selectedNumber && (
+          <>
+            <Text style={styles.scoreText}>
+              Score: {score}/{questions.length}
+            </Text>
+            {currentQuestionIndex < questions.length ? (
+              <QuestionCard
+                question={questions[currentQuestionIndex].question}
+                answer={questions[currentQuestionIndex].answer}
+                onAnswer={handleAnswer}
+              />
+            ) : (
+              <Text style={styles.completionText}>
+                You've completed all questions!
+              </Text>
+            )}
+          </>
         )}
       </View>
     </ScreenWrapper>
@@ -162,33 +225,31 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   questionCard: {
+    alignItems: "center",
+    padding: 20,
     backgroundColor: "white",
     borderRadius: 10,
-    padding: 20,
-    marginBottom: 20,
     shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.15,
-    shadowRadius: 3.94,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
     elevation: 5,
   },
   questionText: {
     fontSize: 24,
     fontWeight: "bold",
-    marginBottom: 10,
+    marginBottom: 20,
+    textAlign: "center",
   },
   answerInput: {
-    marginTop: 10,
+    width: "100%",
+    height: 40,
+    borderColor: "gray",
     borderWidth: 1,
-    borderColor: "#ddd",
-    padding: 10,
-    marginBottom: 10,
     borderRadius: 5,
-    height: 50,
-    fontSize: 18,
+    paddingHorizontal: 10,
+    marginBottom: 20,
+    textAlign: "center",
   },
   scoreText: {
     fontSize: 18,
@@ -204,5 +265,65 @@ const styles = StyleSheet.create({
     color: "red",
     fontWeight: "bold",
     fontSize: 18,
+  },
+  numberButtonsContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "center",
+    marginBottom: 20,
+  },
+  numberButton: {
+    padding: 10,
+    margin: 5,
+    backgroundColor: theme.colors.primary,
+    borderRadius: theme.radius.sm,
+  },
+  selectedButton: {
+    backgroundColor: theme.colors.secondary,
+  },
+  numberButtonText: {
+    color: "white",
+    fontWeight: "bold",
+  },
+  instructionText: {
+    fontSize: 16,
+    marginBottom: 10,
+    textAlign: "center",
+  },
+  randomButton: {
+    backgroundColor: "red",
+  },
+  submitButton: {
+    backgroundColor: theme.colors.primary,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: theme.radius.md,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+    marginTop: 20,
+    marginBottom: 20,
+  },
+  submitButtonText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  feedbackText: {
+    marginTop: 20,
+    fontSize: 18,
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+  completionText: {
+    fontSize: 20,
+    fontWeight: "bold",
+    textAlign: "center",
+    marginTop: 20,
   },
 });
