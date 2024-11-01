@@ -16,6 +16,7 @@ import { RadioButton } from "react-native-paper"; // Ensure you have installed r
 import { theme } from "../../constants/theme";
 import { fetchAllQuiz } from "../../services/quizService";
 import { useRouter, useLocalSearchParams } from "expo-router";
+import { hp } from "../../helpers/common";
 // Adjust the path accordingly
 
 const Quiz = (props) => {
@@ -205,6 +206,7 @@ const Quiz = (props) => {
                     setCheckButtonEnabled(true);
                     setModalVisible(false);
                     checkAnswers();
+                    setPassword("");
                   } else {
                     Alert.alert("Wrong password", "Please try again");
                   }
@@ -217,14 +219,22 @@ const Quiz = (props) => {
         </Modal>
 
         <TouchableOpacity
-          style={styles.checkButton}
+          style={[styles.checkButton, { borderRadius: 50, padding: 10 }]}
           onPress={() => setModalVisible(true)}
         >
           <Text style={styles.modalButtonText}>Check Answers</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={[styles.checkButton, { marginTop: 20 }]}
+          style={[
+            styles.checkButton,
+            {
+              marginTop: 20,
+              backgroundColor: theme.colors.rose,
+              borderRadius: 50,
+              padding: 10,
+            },
+          ]}
           onPress={tryAgain}
         >
           <Text style={styles.modalButtonText}>Try Again</Text>
@@ -309,11 +319,13 @@ const styles = StyleSheet.create({
     width: "30%",
     marginBottom: 15,
     textAlign: "center",
+    fontSize: hp(3),
   },
   modalButtonText: {
     color: "white",
     fontWeight: "bold",
     textAlign: "center",
+    fontSize: hp(3),
   },
 });
 

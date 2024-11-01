@@ -30,6 +30,7 @@ const QuizListing = () => {
 
   const [subjectData, setSubjectData] = useState([]);
   const [isVisible, setIsVisible] = useState(false);
+  const [number, setNumber] = useState(null);
 
   const handlePressDarjah = () => setExpandedDarjah(!expandedDarjah);
   const handlePressTingkatan = () => setExpandedTingkatan(!expandedTingkatan);
@@ -37,11 +38,6 @@ const QuizListing = () => {
     setExpandedSubjectDarjah(!expandedSubjectDarjah);
   const handlePressSubjectTingkatan = () =>
     setExpandedSubjectTingkatan(!expandedSubjectTingkatan);
-
-  const goToQuiz = (i, title, text) => {
-    console.log("Navigating to Quiz", i, title, text);
-    router.navigate({ pathname: "quiz", params: { chapter: text } });
-  };
 
   useEffect(() => {
     subjectData?.length && setIsVisible(true);
@@ -91,7 +87,15 @@ const QuizListing = () => {
             <TouchableOpacity
               key={index}
               style={styles.chapterItem}
-              onPress={() => {}}
+              onPress={() => {
+                [
+                  router.navigate({
+                    pathname: "quiz",
+                    params: { chapter: chapter },
+                  }),
+                  setIsVisible(false),
+                ];
+              }}
             >
               <Text style={styles.chapterText}>{chapter}</Text>
             </TouchableOpacity>
@@ -112,13 +116,18 @@ const QuizListing = () => {
 
   const makeSubject = (title) => {
     title = title.toLowerCase();
+    const level = title === "primary" ? "standard" : "form"; // Define the level based on title
+    const level_number = number; // Set level_number or retrieve it dynamically as needed
+
     return (
       <View style={styles.chapterContainer}>
         {getCoreSubjects(title).map((subject, index) => (
           <TouchableOpacity
             key={index}
             style={styles.subjectItem}
-            onPress={() => [fetchSubject(subject.toLowerCase())]}
+            onPress={() =>
+              fetchSubject(subject.toLowerCase(), level, level_number)
+            }
           >
             <Text style={styles.chapterText}>{subject}</Text>
           </TouchableOpacity>
@@ -151,11 +160,14 @@ const QuizListing = () => {
                   ? { backgroundColor: theme.colors.primary }
                   : { backgroundColor: theme.colors.roseLight },
               ]}
-              onPress={
-                title === "Primary"
-                  ? handlePressSubjectDarjah
-                  : handlePressSubjectTingkatan
-              }
+              onPress={() => {
+                if (title === "Primary") {
+                  handlePressSubjectDarjah();
+                } else {
+                  handlePressSubjectTingkatan();
+                }
+                setNumber(i + 1);
+              }}
             >
               <Text style={styles.cardText}>{i + 1}</Text>
             </TouchableOpacity>
@@ -165,8 +177,12 @@ const QuizListing = () => {
     </View>
   );
 
-  const fetchSubject = async (subject) => {
-    const { success, data, msg } = await fetchAllChapter(subject);
+  const fetchSubject = async (subject, level, level_number) => {
+    const { success, data, msg } = await fetchAllChapter(
+      subject,
+      level,
+      level_number
+    );
 
     if (success) {
       setSubjectData(data);
@@ -174,9 +190,6 @@ const QuizListing = () => {
       console.log(msg);
     }
   };
-
-  console.log("subjectData", subjectData);
-  console.log("visible", isVisible);
 
   return (
     <ScreenWrapper>
@@ -274,6 +287,7 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: hp(4),
     fontWeight: "bold",
+    color: "grey",
   },
   cardContent: {
     flexDirection: "row",

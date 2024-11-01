@@ -32,13 +32,14 @@ export const fetchAllQuiz = async (chapter) => {
   }
 };
 
-export const fetchAllChapter = async (subject) => {
-  console.log("subject in fetchAllChapter ", subject);
+export const fetchAllChapter = async (subject, level, level_number) => {
   try {
     const { data, error } = await supabase
       .from("questions")
       .select("chapter")
-      .eq("subject", subject);
+      .eq("subject", subject)
+      .eq("level", level)
+      .eq("level_number", level_number);
 
     if (error) {
       console.log("error", error);
