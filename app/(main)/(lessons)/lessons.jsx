@@ -43,8 +43,8 @@ const Lessons = () => {
   const lessonsList = [
     { id: 1, title: "Multiplication" },
     { id: 2, title: "Short Essay" },
-    { id: 3, title: "Subtraction" },
-    { id: 4, title: "Division" },
+    { id: 3, title: "Quiz" },
+    { id: 4, title: "Fraction" },
   ];
 
   const goToLesson = (lesson) => {
@@ -52,6 +52,10 @@ const Lessons = () => {
       router.push(lesson.toLowerCase());
     } else if (lesson === "Short Essay") {
       router.push("essay");
+    } else if (lesson === "Fraction") {
+      router.push("fraction");
+    } else if (lesson === "Quiz") {
+      router.push("quizListing");
     }
   };
 
@@ -162,9 +166,10 @@ const styles = StyleSheet.create({
     paddingBottom: hp(2),
   },
   lessonCard: {
+    justifyContent: "center",
     backgroundColor: "white",
     borderRadius: theme.radius.md,
-    height: hp(25),
+    height: hp(10),
     padding: wp(4),
     marginBottom: hp(2),
     shadowColor: "#000",
