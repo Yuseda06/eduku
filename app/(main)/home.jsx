@@ -85,7 +85,6 @@ const Home = () => {
   };
 
   const getUniqueUsers = (scoresData) => {
-    console.log("scoresData", scoresData);
     const uniqueUsers = scoresData.reduce(
       (acc, curr) => {
         const { name, image } = curr.user;
