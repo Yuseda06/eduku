@@ -35,6 +35,9 @@ export default {
       typedRoutes: true,
     },
     extra: {
+      eas: {
+        projectId: "d6be8545-5f9f-496c-83b8-d4781c8d5510",
+      },
       router: {
         origin: false,
       },
