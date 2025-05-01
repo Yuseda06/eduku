@@ -26,11 +26,19 @@ import EssayCard from "../../../components/EssayCard";
 import Button from "../../../components/Button";
 import Icon from "../../../assets/icons";
 import { ScrollView } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
 
 // New LessonCard component
-const LessonCard = ({ title, onPress }) => (
+const LessonCard = ({ title, onPress, colors }) => (
   <TouchableOpacity onPress={onPress} style={styles.lessonCard}>
-    <Text style={styles.lessonTitle}>{title}</Text>
+    <LinearGradient
+      colors={colors}
+      style={styles.gradient}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+    >
+      <Text style={styles.lessonTitle}>{title}</Text>
+    </LinearGradient>
   </TouchableOpacity>
 );
 
@@ -41,21 +49,36 @@ const Lessons = () => {
   const [users, setUsers] = useState([]);
 
   const lessonsList = [
-    { id: 1, title: "Multiplication" },
-    { id: 2, title: "Short Essay" },
-    { id: 3, title: "Quiz" },
-    { id: 4, title: "Fraction" },
+    { id: 1, title: "Multiplication", colors: ["#ff9a9e", "#fad0c4"] },
+    { id: 2, title: "Short Essay", colors: ["#fad0c4", "#ffd1ff"] },
+    { id: 3, title: "Quiz", colors: ["#a1c4fd", "#c2e9fb"] },
+    { id: 4, title: "Fraction", colors: ["#d4fc79", "#96e6a1"] },
+    { id: 5, title: "Vocabulary", colors: ["#84fab0", "#8fd3f4"] },
   ];
 
   const goToLesson = (lesson) => {
-    if (lesson === "Multiplication") {
-      router.push(lesson.toLowerCase());
-    } else if (lesson === "Short Essay") {
-      router.push("essay");
-    } else if (lesson === "Fraction") {
-      router.push("fraction");
-    } else if (lesson === "Quiz") {
-      router.push("quizListing");
+    try {
+      switch (lesson) {
+        case "Multiplication":
+          router.push("multiplication");
+          break;
+        case "Short Essay":
+          router.push("essay");
+          break;
+        case "Fraction":
+          router.push("fraction");
+          break;
+        case "Quiz":
+          router.push("quizOpenAI");
+          break;
+        case "Vocabulary":
+          router.push("vocabulary");
+          break;
+        default:
+          console.error("Unknown lesson type:", lesson);
+      }
+    } catch (error) {
+      console.error("Failed to navigate:", error);
     }
   };
 
@@ -84,11 +107,13 @@ const Lessons = () => {
         </View>
 
         <ScrollView contentContainerStyle={styles.scrollContent}>
-          {lessonsList.map((lesson) => (
+          {/* {response && <Text>{response}</Text>} */}
+          {lessonsList.map((lesson, index) => (
             <LessonCard
               key={lesson.id}
               title={lesson.title}
               onPress={() => goToLesson(lesson.title)}
+              colors={lesson.colors}
             />
           ))}
         </ScrollView>
@@ -162,29 +187,30 @@ const styles = StyleSheet.create({
     marginBottom: 50,
   },
   scrollContent: {
+    marginTop: hp(3),
     paddingHorizontal: wp(4),
-    paddingBottom: hp(2),
+    paddingBottom: hp(3),
   },
   lessonCard: {
-    justifyContent: "center",
-    backgroundColor: "white",
-    borderRadius: theme.radius.md,
-    height: hp(10),
-    padding: wp(4),
+    borderRadius: 20,
+    height: 80,
     marginBottom: hp(2),
     shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.15,
-    shadowRadius: 3.97,
+    shadowRadius: 3.84,
     elevation: 5,
   },
   lessonTitle: {
+    color: "white",
+    fontSize: hp(3),
+    fontWeight: "bold",
     textAlign: "center",
-    fontSize: hp(3.2),
-    fontWeight: theme.fonts.semiBold,
-    color: theme.colors.textLight,
+  },
+  gradient: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 20,
   },
 });

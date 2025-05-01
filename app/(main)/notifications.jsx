@@ -49,8 +49,6 @@ const CreateEssay = () => {
       userId: user?.id,
     };
 
-    console.log(data);
-
     setLoading(true);
     let res = await insertEssay(data);
     setLoading(false);

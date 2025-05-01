@@ -7,7 +7,7 @@ import {
   Text,
   View,
 } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import ScreenWrapper from "../../components/ScreenWrapper";
 import { useAuth } from "../../contexts/AuthContext";
 import { supabase } from "../../lib/supabase";
@@ -21,7 +21,8 @@ import UsersList from "../../components/UserList";
 import { fetchPosts } from "../../services/postService";
 import PostCard from "../../components/PostCard";
 import Loading from "../../components/Loading";
-
+import { getScore } from "../../services/scoreService";
+import { useFocusEffect } from "@react-navigation/native";
 var limit = 10;
 
 const Home = () => {
@@ -29,6 +30,7 @@ const Home = () => {
   const router = useRouter();
 
   const [posts, setPosts] = useState([]);
+  const [scoresData, setScoresData] = useState([]);
 
   const handlePostEvent = async (payload) => {
     if (payload?.eventType == "INSERT" && payload?.new?.id) {
@@ -38,6 +40,24 @@ const Home = () => {
       setPosts((prevPosts) => [newPost, ...prevPosts]);
     }
   };
+
+  useFocusEffect(
+    React.useCallback(() => {
+      const getScores = async () => {
+        let res = await getScore(user);
+        if (res.success) {
+          setScoresData(res.data);
+        }
+      };
+
+      getScores();
+
+      // Optional: Return a function to reset state when the component loses focus
+      return () => {
+        setScoresData([]);
+      };
+    }, [user])
+  );
 
   useEffect(() => {
     let postChannel = supabase
@@ -64,12 +84,50 @@ const Home = () => {
     }
   };
 
-  // const onLogout = async () => {
-  //   const { error } = await supabase.auth.signOut();
-  //   if (error) {
-  //     Alert.alert("Logout", error.message);
-  //   }
-  // };
+  const getUniqueUsers = (scoresData) => {
+    console.log("scoresData", scoresData);
+    const uniqueUsers = scoresData.reduce(
+      (acc, curr) => {
+        const { name, image } = curr.user;
+        if (!acc.names.has(name)) {
+          acc.names.add(name);
+          acc.users.push({ name, image });
+        }
+        return acc;
+      },
+      { users: [], names: new Set() }
+    );
+
+    return uniqueUsers.users;
+  };
+
+  useEffect(() => {
+    const uniqueUsers = getUniqueUsers(scoresData);
+  }, [scoresData]);
+
+  const usersListData = useMemo(() => {
+    return getUniqueUsers(scoresData).map((item) => {
+      const totalScore = scoresData
+        .filter((score) => score.user.name === item.name)
+        .reduce((acc, curr) => acc + curr.score, 0);
+      return {
+        name: item.name,
+        image: item.image,
+        totalScore: totalScore,
+      };
+    });
+  }, [scoresData]);
+
+  useEffect(() => {
+    const totalScores = scoresData.reduce((acc, curr) => {
+      const { name } = curr.user;
+      if (!acc[name]) {
+        acc[name] = 0;
+      }
+      acc[name] += curr.score;
+      return acc;
+    }, {});
+  }, [scoresData]);
 
   return (
     <ScreenWrapper bg="white">
@@ -79,14 +137,17 @@ const Home = () => {
           <View style={styles.icons}>
             <Pressable
               title="Add Post"
-              onPress={() => router.push("notifications")}
+              onPress={() => router.push("quizOpenAI")}
             >
               <Icon name="edit" size={hp(3.2)} color={theme.colors.textLight} />
             </Pressable>
             <Pressable title="Add Post" onPress={() => router.push("lessons")}>
               <Icon name="book" size={hp(3.2)} color={theme.colors.textLight} />
             </Pressable>
-            <Pressable title="Add Post" onPress={() => router.push("newPost")}>
+            <Pressable
+              title="Add Post"
+              onPress={() => router.push("vocabulary")}
+            >
               <Icon name="plus" size={hp(3.2)} color={theme.colors.textLight} />
             </Pressable>
             <Pressable title="Add Post" onPress={() => router.push("profile")}>
@@ -100,7 +161,7 @@ const Home = () => {
           </View>
         </View>
 
-        <FlatList
+        {/* <FlatList
           data={posts}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.listStyle}
@@ -110,13 +171,73 @@ const Home = () => {
           )}
           ListFooterComponent={
             <View style={{ marginVertical: posts.length == 0 ? 200 : 30 }}>
-              {/* <Loading /> */}
+            
               <Text style={{ textAlign: "center" }}>Post is end here</Text>
+            </View>
+          }
+        /> */}
+
+        <FlatList
+          data={usersListData}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.listStyle}
+          keyExtractor={(item) => item.name.toString()}
+          renderItem={({ item }) => <ScoreCard item={item} />}
+          ListEmptyComponent={
+            <View style={styles.emptyContainer}>
+              <Text style={styles.emptyText}>No scores yet</Text>
             </View>
           }
         />
       </View>
     </ScreenWrapper>
+  );
+};
+
+const ScoreCard = ({ item }) => {
+  return (
+    <View
+      style={{
+        marginBottom: 10,
+        padding: 0,
+        borderRadius: 10,
+        backgroundColor: "#f5f5f5",
+        overflow: "visible",
+      }}
+    >
+      <View
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
+        <View style={{ marginLeft: 10 }}>
+          <Text style={styles.userName}>{item.name}</Text>
+          <Text style={styles.scoreText}>Score: {item.totalScore}</Text>
+        </View>
+        <Avatar
+          uri={item.image}
+          size={hp(12)}
+          rounded={hp(12)}
+          style={{
+            borderWidth: 4,
+            borderColor: theme.colors.primary,
+            marginTop: -hp(2),
+            marginBottom: -hp(2),
+            marginRight: hp(1),
+            shadowColor: "#000",
+            shadowOffset: {
+              width: 0,
+              height: 2,
+            },
+            shadowOpacity: 0.15,
+            shadowRadius: 3,
+            elevation: 3,
+          }}
+        />
+      </View>
+    </View>
   );
 };
 
@@ -182,5 +303,8 @@ const styles = StyleSheet.create({
   },
   logout: {
     marginBottom: 50,
+  },
+  linkStyle: {
+    marginRight: wp(2),
   },
 });

@@ -18,6 +18,7 @@ import { useCallback } from "react";
 import { hp } from "../../helpers/common";
 import { fetchAllChapter } from "../../services/quizService";
 import Icon from "react-native-vector-icons/FontAwesome"; // Ensure you have installed react-native-vector-icons
+import { ViewComponent } from "react-native";
 
 const QuizListing = () => {
   const router = useRouter();
@@ -58,7 +59,7 @@ const QuizListing = () => {
         "English Language",
         "Mathematics",
         "Science", // Form 1-3
-        "Sejarah", // Form 1-5
+        "History", // Form 1-5
         "Pendidikan Islam", // for Muslim students
         "Geography", // Visual Arts Education
       ],
@@ -81,26 +82,39 @@ const QuizListing = () => {
 
   const chapterModal = (subject) => {
     return (
-      <View style={styles.modalContent}>
+      <ScrollView contentContainerStyle={styles.modalContent}>
         {subjectData &&
           subjectData.map((chapter, index) => (
-            <TouchableOpacity
-              key={index}
-              style={styles.chapterItem}
-              onPress={() => {
-                [
-                  router.navigate({
-                    pathname: "quiz",
-                    params: { chapter: chapter },
-                  }),
-                  setIsVisible(false),
-                ];
+            <View
+              style={{
+                flexDirection: "row",
+                padding: 10,
+                alignContent: "center",
+                alignItems: "center",
               }}
             >
-              <Text style={styles.chapterText}>{chapter}</Text>
-            </TouchableOpacity>
+              <View style={styles.iconBullet}>
+                <Icon name="circle" size={hp(2)} color={theme.colors.primary} />
+              </View>
+
+              <TouchableOpacity
+                key={index}
+                style={styles.chapterItem}
+                onPress={() => {
+                  [
+                    router.navigate({
+                      pathname: "quiz",
+                      params: { chapter: chapter },
+                    }),
+                    setIsVisible(false),
+                  ];
+                }}
+              >
+                <Text style={styles.chapterText}>{chapter}</Text>
+              </TouchableOpacity>
+            </View>
           ))}
-      </View>
+      </ScrollView>
     );
   };
 
@@ -247,12 +261,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
   },
   centeredView: {
+    paddingTop: 100,
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "rgba(0,0,0,0.5)",
   },
   modalContent: {
+    borderWidth: 1,
+    borderColor: "black",
     backgroundColor: "white",
     borderRadius: 10,
     padding: 10,

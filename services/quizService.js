@@ -11,22 +11,24 @@ export const fetchAllQuiz = async (chapter) => {
         options (id, text, is_correct)
       `
       )
-      .eq("chapter", chapter)
-      .limit(40);
-
-    if (!data || data.length === 0) {
-      return { success: true, data: [] };
-    }
+      .eq("chapter", chapter);
 
     if (error) {
       console.log("error", error);
       return { success: false, msg: "Could not fetch questions" };
     }
 
-    // Sort the data if needed, e.g., by `id`
-    const sortedData = data.sort((a, b) => a.id - b.id);
+    if (!data || data.length === 0) {
+      return { success: true, data: [] };
+    }
 
-    return { success: true, data: sortedData };
+    // Shuffle the data to randomize
+    const shuffledData = data.sort(() => Math.random() - 0.5);
+
+    // Limit to 20 items
+    const limitedData = shuffledData.slice(0, 20);
+
+    return { success: true, data: limitedData };
   } catch (error) {
     return { success: false, msg: "Could not fetch questions", error };
   }
@@ -37,7 +39,7 @@ export const fetchAllChapter = async (subject, level, level_number) => {
     const { data, error } = await supabase
       .from("questions")
       .select("chapter")
-      .eq("subject", subject)
+      .ilike("subject", `%${subject}%`)
       .eq("level", level)
       .eq("level_number", level_number);
 

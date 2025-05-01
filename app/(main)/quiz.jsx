@@ -17,6 +17,7 @@ import { theme } from "../../constants/theme";
 import { fetchAllQuiz } from "../../services/quizService";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { hp } from "../../helpers/common";
+import { Ionicons } from "@expo/vector-icons";
 // Adjust the path accordingly
 
 const Quiz = (props) => {
@@ -132,7 +133,11 @@ const Quiz = (props) => {
         </View>
       </View>
       <ScrollView
-        style={{ marginTop: 20, paddingHorizontal: 12, marginBottom: 40 }}
+        style={{
+          marginTop: 20,
+          paddingHorizontal: 12,
+          marginBottom: 40,
+        }}
       >
         {quizData.map((question, index) => (
           <View
@@ -140,6 +145,7 @@ const Quiz = (props) => {
             style={{
               marginBottom: 20,
               alignItems: "flex-start",
+              marginHorizontal: 16,
             }}
           >
             <Text style={styles.questionText}>
@@ -189,6 +195,14 @@ const Quiz = (props) => {
         >
           <View style={styles.centeredView}>
             <View style={styles.modalView}>
+              <TouchableOpacity>
+                <Ionicons
+                  name="close"
+                  size={24}
+                  color="black"
+                  onPress={() => setModalVisible(false)}
+                />
+              </TouchableOpacity>
               <Text style={styles.modalText}>
                 Enter your password to check answers
               </Text>
@@ -257,6 +271,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     marginVertical: 5,
+    marginRight: 16,
   },
   circle: {
     position: "absolute",
@@ -293,7 +308,6 @@ const styles = StyleSheet.create({
     marginTop: 22,
   },
   modalView: {
-    margin: 20,
     backgroundColor: "white",
     borderRadius: 20,
     padding: 35,
@@ -308,24 +322,24 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   input: {
-    width: "30%",
-    height: 40,
+    height: "auto",
     borderColor: "gray",
     borderWidth: 1,
-    marginVertical: 10,
-    paddingHorizontal: 10,
+    fontSize: hp(2),
+    padding: 14,
+    borderRadius: 10,
   },
   modalText: {
-    width: "30%",
+    marginTop: 15,
     marginBottom: 15,
     textAlign: "center",
-    fontSize: hp(3),
+    fontSize: hp(2),
   },
   modalButtonText: {
     color: "white",
     fontWeight: "bold",
     textAlign: "center",
-    fontSize: hp(3),
+    fontSize: hp(2.5),
   },
 });
 

@@ -195,19 +195,38 @@ const EssayCard = ({ item, currentUser, hasShadow = true, allUsers }) => {
         </Text>
 
         <View style={styles.postBody}>
-          <View
-            style={{ flexDirection: "row", flexWrap: "wrap", marginBottom: 40 }}
-          >
-            {sentence.split(" ").map((word, index) => (
+          <View style={{ flexDirection: "column", marginBottom: 40 }}>
+            {sentence.split(". ").map((sentencePart, index) => (
               <TouchableOpacity
                 key={index}
-                onPress={() => handleWordPress(word)}
-                onLongPress={() => handleTranslate(word)}
-                style={{ marginRight: 2 }}
+                onPress={() => handleTranslate(sentencePart)}
               >
-                <Text style={{ fontSize: 18 }}>
-                  {word + (index < sentence.split(" ").length - 1 ? " " : "")}
-                </Text>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    flexWrap: "wrap",
+                    padding: 10,
+                    backgroundColor: "#f0f0f0",
+                    borderRadius: 8,
+                    marginBottom: 10,
+                  }}
+                >
+                  {sentencePart.split(" ").map((word, wordIndex) => (
+                    <TouchableOpacity
+                      key={wordIndex}
+                      onPress={() => handleWordPress(word)}
+                      onLongPress={() => handleTranslate(word)}
+                      style={{ marginRight: 2 }}
+                    >
+                      <Text style={{ fontSize: 18 }}>
+                        {word +
+                          (wordIndex < sentencePart.split(" ").length - 1
+                            ? " "
+                            : "")}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
               </TouchableOpacity>
             ))}
           </View>
