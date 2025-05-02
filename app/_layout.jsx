@@ -2,8 +2,7 @@ import { View, Text, LogBox } from "react-native";
 import React, { useEffect } from "react";
 import { Stack, useRouter } from "expo-router";
 import { AuthProvider, useAuth } from "../contexts/AuthContext";
-import { supabase } from "../lib/supabase";
-import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
+import { getSupabase } from "../lib/supabase";
 import { getUserData } from "../services/userService";
 
 LogBox.ignoreLogs([
@@ -23,6 +22,9 @@ const _layout = () => {
 const MainLayout = () => {
   const { setAuth, setUserData } = useAuth();
   const router = useRouter();
+
+  const supabase = getSupabase();
+  if (!supabase) return;
 
   useEffect(() => {
     supabase.auth.onAuthStateChange((_event, session) => {

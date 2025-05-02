@@ -1,7 +1,11 @@
-import { supabase } from "../lib/supabase";
+import { getSupabase } from "../lib/supabase";
+
 
 export const fetchAllQuiz = async (chapter) => {
   try {
+    const supabase = getSupabase();
+    if (!supabase) return;
+
     const { data, error } = await supabase
       .from("questions")
       .select(
@@ -36,6 +40,9 @@ export const fetchAllQuiz = async (chapter) => {
 
 export const fetchAllChapter = async (subject, level, level_number) => {
   try {
+    const supabase = getSupabase();
+    if (!supabase) return;
+
     const { data, error } = await supabase
       .from("questions")
       .select("chapter")

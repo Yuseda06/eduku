@@ -1,7 +1,11 @@
-import { supabase } from "../lib/supabase";
+import { getSupabase } from "../lib/supabase";
+
 
 export const getUserData = async (userId) => {
   try {
+    const supabase = getSupabase();
+    if (!supabase) return;
+
     const { data, error } = await supabase
       .from("users")
       .select()
@@ -22,6 +26,9 @@ export const getUserData = async (userId) => {
 
 export const updateUser = async (userId, data) => {
   try {
+    const supabase = getSupabase();
+    if (!supabase) return;
+
     const { error } = await supabase
       .from("users")
       .update(data)
@@ -41,6 +48,9 @@ export const updateUser = async (userId, data) => {
 
 export const getAllUsers = async () => {
   try {
+    const supabase = getSupabase();
+    if (!supabase) return;
+
     const { data: users, error } = await supabase.from("users").select("*");
 
     if (error) {

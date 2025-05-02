@@ -11,7 +11,9 @@ import {
   ActivityIndicator,
 } from "react-native";
 import ScreenWrapper from "../../components/ScreenWrapper";
-import { getResponse } from "../../services/openAIApi";
+import {
+  getResponse
+} from "../../services/openAIApi";
 import { theme } from "../../constants/theme";
 import Header from "../../components/Header";
 
@@ -98,6 +100,7 @@ const QuizOpenAI = () => {
         level: selectedLevel,
         model: selectedModel,
       });
+      console.log("API Response >>>>>>>>>>>>>>>>:", res); // <<< TENGOK KAT CONSOLE NI
       setResponse(res);
     } catch (error) {
       console.error("Error fetching data:", error);

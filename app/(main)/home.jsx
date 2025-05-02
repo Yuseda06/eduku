@@ -1,6 +1,4 @@
 import {
-  Alert,
-  Button,
   FlatList,
   Pressable,
   StyleSheet,
@@ -10,17 +8,14 @@ import {
 import React, { useEffect, useState, useMemo } from "react";
 import ScreenWrapper from "../../components/ScreenWrapper";
 import { useAuth } from "../../contexts/AuthContext";
-import { supabase } from "../../lib/supabase";
+import { getSupabase } from "../../lib/supabase";
 import { hp, wp } from "../../helpers/common";
 import { theme } from "../../constants/theme";
 import Icon from "../../assets/icons";
 import { useRouter } from "expo-router";
 import Avatar from "../../components/Avatar";
-import { getAllUsers, getUserData } from "../../services/userService";
-import UsersList from "../../components/UserList";
+import {  getUserData } from "../../services/userService";
 import { fetchPosts } from "../../services/postService";
-import PostCard from "../../components/PostCard";
-import Loading from "../../components/Loading";
 import { getScore } from "../../services/scoreService";
 import { useFocusEffect } from "@react-navigation/native";
 var limit = 10;
@@ -60,6 +55,9 @@ const Home = () => {
   );
 
   useEffect(() => {
+    const supabase = getSupabase();
+    if (!supabase) return;
+
     let postChannel = supabase
       .channel("posts")
       .on(

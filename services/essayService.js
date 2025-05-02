@@ -1,7 +1,14 @@
-import { supabase } from "../lib/supabase";
+import { getSupabase } from "../lib/supabase";
+
+
 
 export const insertEssay = async (essay) => {
   try {
+
+    const supabase = getSupabase();
+    if (!supabase) return;
+
+
     const { data, error } = await supabase
       .from("english")
       .upsert(essay)
@@ -20,6 +27,10 @@ export const insertEssay = async (essay) => {
 
 export const fetchEssay = async (limit = 10) => {
   try {
+
+    const supabase = getSupabase();
+    if (!supabase) return;
+
     const { data, error } = await supabase
       .from("english")
       .select(`*, user: users (id, name, image)`)
@@ -38,6 +49,9 @@ export const fetchEssay = async (limit = 10) => {
 
 export const deleteEssay = async (id) => {
   try {
+    const supabase = getSupabase();
+    if (!supabase) return;
+
     const { error } = await supabase.from("english").delete().eq("id", id);
     if (error) {
       router.navigate("home");
@@ -52,6 +66,9 @@ export const deleteEssay = async (id) => {
 
 export const fetchAllEssay = async () => {
   try {
+    const supabase = getSupabase();
+    if (!supabase) return;
+
     const { data, error } = await supabase.from("english").select("*");
 
     const sortedData = data.sort(

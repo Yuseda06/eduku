@@ -18,7 +18,6 @@ import { hp, wp } from "../../helpers/common";
 import { theme } from "../../constants/theme";
 import Avatar from "../../components/Avatar";
 import { useAuth } from "../../contexts/AuthContext";
-import RichTextEditor from "../../components/RichTextEditor";
 import { useRouter } from "expo-router";
 import Icon from "../../assets/icons";
 import Button from "../../components/Button";
@@ -91,10 +90,10 @@ const CreateEssay = () => {
                 <Input onChangeText={(text) => (titleRef.current = text)} />
               </View>
 
-              <RichTextEditor
+              {/* <RichTextEditor
                 editorRef={editorRef}
                 onChange={(body) => (bodyRef.current = body)}
-              />
+              /> */}
             </View>
           </ScrollView>
 
