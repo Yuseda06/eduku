@@ -11,6 +11,11 @@ import { getSupabaseFileUrl } from "../services/imageService";
 import { Image } from "react-native";
 import { Video } from "expo-av";
 
+const textStyles = {
+  color: theme.colors.dark,
+  fontSize: hp(1.75),
+};
+
 const tagsStyles = {
   div: textStyles,
   p: textStyles,
@@ -23,10 +28,6 @@ const tagsStyles = {
   },
 };
 
-const textStyles = {
-  color: theme.colors.dark,
-  fontSize: hp(1.75),
-};
 
 const PostCard = ({ item, currentUser, router, hasShadow = true }) => {
   const shadowStyles = {

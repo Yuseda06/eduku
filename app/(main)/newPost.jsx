@@ -17,7 +17,6 @@ import { hp, wp } from "../../helpers/common";
 import { theme } from "../../constants/theme";
 import Avatar from "../../components/Avatar";
 import { useAuth } from "../../contexts/AuthContext";
-import RichTextEditor from "../../components/RichTextEditor";
 import { useRouter } from "expo-router";
 import Icon from "../../assets/icons";
 import Button from "../../components/Button";
@@ -141,12 +140,12 @@ const NewPost = () => {
               </View>
             </View>
 
-            <View style={styles.textEditor}>
+            {/* <View style={styles.textEditor}>
               <RichTextEditor
                 editorRef={editorRef}
                 onChange={(body) => (bodyRef.current = body)}
               />
-            </View>
+            </View> */}
 
             {file && (
               <View style={styles.file}>

@@ -9,13 +9,16 @@ import { theme } from "../constants/theme";
 import Input from "../components/Input";
 import Icon from "../assets/icons";
 import Button from "../components/Button";
-import { supabase } from "../lib/supabase";
+import { getSupabase } from "../lib/supabase";
 
 const Login = () => {
   const router = useRouter();
   const emailRef = useRef("");
   const passwordRef = useRef("");
   const [loading, setLoading] = useState(false);
+
+  const supabase = getSupabase();
+  if (!supabase) return null; 
 
   const onSubmit = async () => {
     if (!emailRef.current || !passwordRef.current) {

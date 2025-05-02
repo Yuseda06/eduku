@@ -7,7 +7,7 @@ export default {
     version: "1.0.0",
     scheme: "myapp",
     userInterfaceStyle: "automatic",
-    platforms: ["ios", "android"],
+    platforms: ["ios", "android", "web"],
     splash: {
       image: "./assets/images/splash.png",
       resizeMode: "contain",

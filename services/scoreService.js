@@ -1,7 +1,10 @@
-import { supabase } from "../lib/supabase";
+import { getSupabase } from "../lib/supabase";
 
 export const getScore = async (user) => {
   try {
+    const supabase = getSupabase();
+    if (!supabase) return;
+
     const { data, error } = await supabase
       .from("score")
       .select(
@@ -33,6 +36,9 @@ export const getScore = async (user) => {
 
 export const insertScore = async (score) => {
   try {
+    const supabase = getSupabase();
+    if (!supabase) return;
+
     const { data, error } = await supabase.from("score").insert(score);
   } catch (error) {
     return { success: false, msg: "Could not insert score", error };
@@ -41,6 +47,9 @@ export const insertScore = async (score) => {
 
 export const updateScore = async (score) => {
   try {
+    const supabase = getSupabase();
+    if (!supabase) return;
+
     const { data, error } = await supabase
       .from("score")
       .upsert(score)

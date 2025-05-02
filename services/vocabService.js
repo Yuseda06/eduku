@@ -1,8 +1,13 @@
-import { supabase } from "../lib/supabase";
+import { getSupabase } from "../lib/supabase";
+
+
 
 export const fetchAllVocab = async (user, page = 1, limit = 10) => {
   const offset = (page - 1) * limit; // Calculate the offset
   try {
+    const supabase = getSupabase();
+    if (!supabase) return;
+
     const { data, error } = await supabase
       .from("vocab")
       .select(
@@ -40,6 +45,9 @@ export const fetchAllVocab = async (user, page = 1, limit = 10) => {
 
 export const insertVocab = async (vocab) => {
   try {
+    const supabase = getSupabase();
+    if (!supabase) return;
+
     const { data, error } = await supabase
       .from("vocab")
       .upsert(vocab)
@@ -58,6 +66,9 @@ export const insertVocab = async (vocab) => {
 };
 
 export const deleteVocab = async (id) => {
+  const supabase = getSupabase();
+  if (!supabase) return;
+
   const { data, error } = await supabase
     .from("vocab")
     .delete()
@@ -71,6 +82,9 @@ export const deleteVocab = async (id) => {
 
 export const editVocab = async (id, updates) => {
   try {
+    const supabase = getSupabase();
+    if (!supabase) return;
+
     const { data, error } = await supabase
       .from("vocab")
       .update(updates)

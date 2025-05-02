@@ -23,6 +23,13 @@ import { deleteEssay } from "../services/essayService";
 import { useRouter } from "expo-router";
 import { getUserData } from "../services/userService";
 
+
+
+const textStyles = {
+  color: theme.colors.dark,
+  fontSize: hp(1.75),
+};
+
 const tagsStyles = {
   div: textStyles,
   p: textStyles,
@@ -33,11 +40,6 @@ const tagsStyles = {
   h4: {
     color: theme.colors.dark,
   },
-};
-
-const textStyles = {
-  color: theme.colors.dark,
-  fontSize: hp(1.75),
 };
 
 const EssayCard = ({ item, currentUser, hasShadow = true, allUsers }) => {

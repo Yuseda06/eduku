@@ -1,5 +1,6 @@
-import { supabase } from "../lib/supabase";
+import { getSupabase } from "../lib/supabase";
 import { uploadFile } from "./imageService";
+
 
 export const createOrUpdatePost = async (post) => {
   try {
@@ -12,6 +13,9 @@ export const createOrUpdatePost = async (post) => {
         return fileResult;
       }
     }
+
+    const supabase = getSupabase();
+    if (!supabase) return;
 
     const { data, error } = await supabase
       .from("posts")
@@ -31,6 +35,9 @@ export const createOrUpdatePost = async (post) => {
 
 export const fetchPosts = async (limit = 10) => {
   try {
+    const supabase = getSupabase();
+    if (!supabase) return;
+
     const { data, error } = await supabase
       .from("posts")
       .select(`*, user: users (id, name, image)`)
