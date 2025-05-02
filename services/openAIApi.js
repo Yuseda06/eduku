@@ -1,7 +1,11 @@
 import { Platform } from "react-native";
 
 export const getResponse = async (payload) => {
-  const baseUrl = Platform.OS === "web" ? "http://localhost:5000" : ""; // kosong untuk native
+  const baseUrl =
+    Platform.OS === "web"
+      ? "https://eduku-git-main-yusri-saads-projects.vercel.app" 
+      : "http://localhost:5000"; 
+
   const res = await fetch(`${baseUrl}/api/getResponse`, {
     method: "POST",
     headers: {
@@ -9,9 +13,11 @@ export const getResponse = async (payload) => {
     },
     body: JSON.stringify(payload),
   });
+
   const json = await res.json();
   return json.result;
 };
+
 
 
 export const getTranslation = async (text) => {
