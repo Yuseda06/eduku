@@ -22,6 +22,10 @@ export const getResponse = async (payload) => {
 
 
 export const getTranslation = async (text) => {
+  const baseUrl =
+  Platform.OS === "web"
+    ? "https://eduku-api.vercel.app" // ni backend punya domain
+    : "http://localhost:5000"; // masa run native local
   try {
     const res = await fetch(`${baseUrl}/api/getTranslation`, {
       method: "POST",
@@ -41,6 +45,10 @@ export const getTranslation = async (text) => {
 
 
 export const getSentence = async (text) => {
+  const baseUrl =
+  Platform.OS === "web"
+    ? "https://eduku-api.vercel.app" // ni backend punya domain
+    : "http://localhost:5000"; // masa run native local
   try {
     const res = await fetch(`${baseUrl}/api/getSentence`, {
       method: 'POST',
@@ -57,6 +65,10 @@ export const getSentence = async (text) => {
 };
 
 export const generateImage = async (description) => {
+  const baseUrl =
+  Platform.OS === "web"
+    ? "https://eduku-api.vercel.app" // ni backend punya domain
+    : "http://localhost:5000"; // masa run native local
   try {
     const res = await fetch(`${baseUrl}/api/generateImage`, {
       method: 'POST',
@@ -73,6 +85,10 @@ export const generateImage = async (description) => {
 };
 
 export const generateSpeechToFile = async (inputText) => {
+  const baseUrl =
+  Platform.OS === "web"
+    ? "https://eduku-api.vercel.app" // ni backend punya domain
+    : "http://localhost:5000"; // masa run native local
   try {
     const mp3 = await openai.audio.speech.create({
       model: "tts-1",
