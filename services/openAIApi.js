@@ -42,7 +42,7 @@ export const getTranslation = async (text) => {
 
 export const getSentence = async (text) => {
   try {
-    const res = await fetch('/api/getSentence', {
+    const res = await fetch(`${baseUrl}/api/getSentence`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ text })
@@ -58,7 +58,7 @@ export const getSentence = async (text) => {
 
 export const generateImage = async (description) => {
   try {
-    const res = await fetch('/api/generateImage', {
+    const res = await fetch(`${baseUrl}/api/generateImage`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ description })
