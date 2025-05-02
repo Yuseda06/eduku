@@ -2,9 +2,10 @@ import { Platform } from "react-native";
 
 export const getResponse = async (payload) => {
   const baseUrl =
-    Platform.OS === "web"
-      ? "https://eduku-git-main-yusri-saads-projects.vercel.app" 
-      : "http://localhost:5000"; 
+  Platform.OS === "web"
+    ? "https://eduku-api.vercel.app" // ni backend punya domain
+    : "http://localhost:5000"; // masa run native local
+
 
   const res = await fetch(`${baseUrl}/api/getResponse`, {
     method: "POST",
