@@ -1,4 +1,6 @@
 import { Platform } from "react-native";
+import { Audio } from "expo-av";
+import * as FileSystem from "expo-file-system";
 
 export const getResponse = async (payload) => {
   const baseUrl =
@@ -84,57 +86,63 @@ export const generateImage = async (description) => {
   }
 };
 
+
+
 export const generateSpeechToFile = async (inputText) => {
-  const baseUrl =
-  Platform.OS === "web"
-    ? "https://eduku-api.vercel.app" // ni backend punya domain
-    : "http://localhost:5000"; // masa run native local
   try {
-    const mp3 = await openai.audio.speech.create({
-      model: "tts-1",
-      voice: "echo",
-      input: inputText,
+    const baseUrl =
+      Platform.OS === "web"
+        ? "https://eduku-api.vercel.app"
+        : "http://localhost:5000";
+
+    const response = await fetch(`${baseUrl}/api/tts`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text: inputText }),
     });
+
+    const { audioBase64 } = await response.json();
     const uri = `${FileSystem.cacheDirectory}speech.mp3`;
 
-    const buffer = Buffer.from(await mp3.arrayBuffer());
-    await FileSystem.writeAsStringAsync(uri, buffer.toString("base64"), {
+    await FileSystem.writeAsStringAsync(uri, audioBase64, {
       encoding: FileSystem.EncodingType.Base64,
     });
 
-    // Now play the saved audio file
     const soundObject = new Audio.Sound();
-    await soundObject.loadAsync({
-      uri: `data:audio/mp3;base64,${buffer.toString("base64")}`,
-    });
+    await soundObject.loadAsync({ uri });
     await soundObject.playAsync();
 
     return uri;
-  } catch (error) {
-    console.error("Error generating and playing speech to file:", error);
+  } catch (err) {
+    console.error("Error generating and playing speech to file:", err);
   }
 };
 
+
 export const playTextAsSpeech = async (tts_text) => {
   try {
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    const baseUrl =
+      Platform.OS === "web"
+        ? "https://eduku-api.vercel.app"
+        : "http://localhost:5000";
+
+    const response = await fetch(`${baseUrl}/api/pronounce`, {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${openaiApiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(promptForPronunciation(tts_text)),
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text: tts_text }),
     });
 
-    const jsonResponse = await response.json();
-    const audioData = jsonResponse.choices[0].message.audio.data;
-    const audioBuffer = Buffer.from(audioData, "base64");
-    const soundObject = new Audio.Sound();
-    await soundObject.loadAsync({
-      uri: `data:audio/mp3;base64,${audioBuffer.toString("base64")}`,
+    const { audioBase64 } = await response.json();
+    const uri = `${FileSystem.cacheDirectory}pronounce.mp3`;
+
+    await FileSystem.writeAsStringAsync(uri, audioBase64, {
+      encoding: FileSystem.EncodingType.Base64,
     });
+
+    const soundObject = new Audio.Sound();
+    await soundObject.loadAsync({ uri });
     await soundObject.playAsync();
-  } catch (error) {
-    console.error("Error playing sound:", error);
+  } catch (err) {
+    console.error("Error playing pronunciation:", err);
   }
 };
