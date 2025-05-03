@@ -104,19 +104,26 @@ export const generateSpeechToFile = async (inputText) => {
     const { audioBase64 } = await response.json();
     const uri = `${FileSystem.cacheDirectory}speech.mp3`;
 
-    await FileSystem.writeAsStringAsync(uri, audioBase64, {
-      encoding: FileSystem.EncodingType.Base64,
-    });
-
     const soundObject = new Audio.Sound();
-    await soundObject.loadAsync({ uri });
-    await soundObject.playAsync();
 
+    if (Platform.OS === "web") {
+      await soundObject.loadAsync({
+        uri: `data:audio/mp3;base64,${audioBase64}`,
+      });
+    } else {
+      await FileSystem.writeAsStringAsync(uri, audioBase64, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
+      await soundObject.loadAsync({ uri });
+    }
+
+    await soundObject.playAsync();
     return uri;
   } catch (err) {
     console.error("Error generating and playing speech to file:", err);
   }
 };
+
 
 
 export const playTextAsSpeech = async (tts_text) => {
