@@ -32,6 +32,7 @@ import {
   generateImage,
   getSentence,
   generateSpeechToFile,
+  getAnswerAndChoicesFromWord,
 } from "../../services/openAIApi";
 
 import { insertScore } from "../../services/scoreService";
@@ -102,6 +103,9 @@ const Vocabulary = () => {
   const [isEdit, setIsEdit] = useState(false);
   const flatListRef = useRef();
   const [apiLoading, setApiLoading] = useState(false);
+  const [answer, setAnswer] = useState("");
+  const [choices, setChoices] = useState("");
+
 
   useEffect(() => {
     const fetchVocab = async () => {
@@ -149,8 +153,11 @@ const Vocabulary = () => {
       word: word,
       translation: translation,
       sentence: sentence,
+      answer: answer,
+      choices: choices.split(",").map(item => item.trim()),
       user_id: user?.id,
     };
+    
 
     let score = {
       score: 1,
@@ -277,6 +284,41 @@ const Vocabulary = () => {
               onChangeText={(text) => setSentence(text)}
               value={sentence}
             />
+
+<TextInput
+  style={{
+    height: 40,
+    width: "100%",
+    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 5,
+    padding: 10,
+    fontSize: 16,
+    backgroundColor: "#f9f9f9",
+  }}
+  placeholder="Answer"
+  value={answer}
+  onChangeText={(text) => setAnswer(text)}
+/>
+
+<TextInput
+  style={{
+    height: 40,
+    width: "100%",
+    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 5,
+    padding: 10,
+    fontSize: 16,
+    backgroundColor: "#f9f9f9",
+  }}
+  placeholder="Choices (comma separated)"
+  value={choices}
+  onChangeText={(text) => setChoices(text)}
+/>
+
             <View
               style={{
                 marginVertical: 12,
@@ -297,18 +339,28 @@ const Vocabulary = () => {
                     justifyContent: "center",
                     alignItems: "center",
                   }}
-                  onPress={() => {
+                  onPress={async () => {
                     setApiLoading(true);
-                    Promise.all([getTranslation(word), getSentence(word)])
-                      .then(([translationResult, sentenceResult]) => {
-                        setTranslation(translationResult);
-                        setSentence(sentenceResult);
-                        setApiLoading(false);
-                      })
-                      .catch(() => {
-                        setApiLoading(false);
-                      });
+                    try {
+                      const translationResult = await getTranslation(word);
+                      const sentenceResult = await getSentence(word);
+                      const choiceResult = await getAnswerAndChoicesFromWord(word, translationResult);
+                  
+                      setTranslation(translationResult);
+                      setSentence(sentenceResult);
+                  
+                      if (choiceResult) {
+                        setAnswer(choiceResult.answer);
+                        setChoices(choiceResult.choices.join(", "));
+                      }
+                  
+                    } catch (err) {
+                      console.error("Error in generating vocab fields:", err);
+                    }
+                    setApiLoading(false);
                   }}
+                  
+                  
                 >
                   {apiLoading ? (
                     <ActivityIndicator size="small" color="white" />
