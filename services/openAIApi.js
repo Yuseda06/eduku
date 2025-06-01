@@ -153,3 +153,25 @@ export const playTextAsSpeech = async (tts_text) => {
     console.error("Error playing pronunciation:", err);
   }
 };
+
+export const getAnswerAndChoicesFromWord = async (word, translation) => {
+  const baseUrl =
+    Platform.OS === "web"
+      ? "https://eduku-api.vercel.app"
+      : "http://localhost:5000";
+
+  try {
+    const res = await fetch(`${baseUrl}/api/getChoices`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ word, translation }),
+    });
+
+    const data = await res.json();
+    return data;
+  } catch (err) {
+    console.error("Fetch error (getAnswerAndChoicesFromWord):", err);
+    return null;
+  }
+};
+
