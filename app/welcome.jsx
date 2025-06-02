@@ -54,6 +54,15 @@ const Welcome = () => {
               </Text>
             </Pressable>
           </View>
+
+          <View style={styles.termsContainer}>
+            <Pressable onPress={() => router.push("terms")}>
+              <Text style={styles.termsText}>Terms of Service</Text>
+            </Pressable>
+            <Pressable onPress={() => router.push("privacy")}>
+              <Text style={styles.termsText}>Privacy Policy</Text>
+            </Pressable>
+          </View>
         </View>
       </View>
     </ScreenWrapper>
@@ -100,4 +109,16 @@ const styles = StyleSheet.create({
     fontSize: hp(1.6),
     textAlign: "center",
   },
+  termsContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 10,
+  },
+  termsText: {
+    color: theme.colors.text,
+    fontSize: hp(1.6),
+    textAlign: "center",
+  },
+  
 });
