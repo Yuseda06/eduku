@@ -13,7 +13,7 @@ import Header from "../../components/Header";
 import { hp, wp } from "../../helpers/common";
 import Icon from "../../assets/icons";
 import { theme } from "../../constants/theme";
-import { supabase } from "../../lib/supabase";
+import { getSupabase } from "../../lib/supabase.web";
 import { Alert } from "react-native";
 import Avatar from "../../components/Avatar";
 
@@ -22,32 +22,39 @@ const Profile = () => {
   const router = useRouter();
 
   const onLogout = async () => {
-    const { error } = await supabase.auth.signOut();
-    await supabase.auth.setSession(null);
-    if (error) {
-      Alert.alert("Logout", error.message);
-    } else {
-      setAuth(null);
-      console.log("Logged out, redirecting...");
-      router.replace("/welcome");
+    const supabase = getSupabase(); // ✅ ini penting
+    if (!supabase || !supabase.auth) {
+      console.warn("Supabase not initialized");
+      return;
+    }
+  
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        alert("Logout Error: " + error.message); // pakai alert sebab Alert tak support web
+      } else {
+        setAuth(null);
+        console.log("Logged out, redirecting...");
+        router.replace("/welcome");
+      }
+    } catch (err) {
+      console.error("Logout failed:", err);
     }
   };
+  
+  
 
   const handleLogout = async () => {
     console.log("Logout button pressed");
-    Alert.alert("Confirm", "Are you sure you want to logout?", [
-      {
-        text: "Cancel",
-        onPress: () => console.log("Cancel Pressed"),
-        style: "cancel",
-      },
-      {
-        text: "Logout",
-        onPress: () => onLogout(),
-        style: "destructive",
-      },
-    ]);
+  
+    const confirm = window.confirm("Are you sure you want to logout?");
+    if (confirm) {
+      await onLogout();
+    } else {
+      console.log("Cancel Pressed");
+    }
   };
+  
 
   return (
     <ScreenWrapper bg="white">
