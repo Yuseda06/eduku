@@ -23,15 +23,18 @@ const Profile = () => {
 
   const onLogout = async () => {
     const { error } = await supabase.auth.signOut();
+    await supabase.auth.setSession(null);
     if (error) {
       Alert.alert("Logout", error.message);
     } else {
       setAuth(null);
+      console.log("Logged out, redirecting...");
       router.replace("/welcome");
     }
   };
 
   const handleLogout = async () => {
+    console.log("Logout button pressed");
     Alert.alert("Confirm", "Are you sure you want to logout?", [
       {
         text: "Cancel",
