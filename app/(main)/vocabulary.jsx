@@ -173,7 +173,7 @@ const Vocabulary = () => {
       answer,
       choices: choices.split(",").map(item => item.trim()),
       user_id: user?.id,
-      child_id: mappedChild, // Now should be proper value
+      child_id: 'zakwan', // Now should be proper value
     };
   
     let res = await insertVocab(data);
