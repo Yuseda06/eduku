@@ -32,6 +32,7 @@ import {
   generateImage,
   getSentence,
   generateSpeechToFile,
+  getAnswerAndChoicesFromWord,
 } from "../../services/openAIApi";
 
 import { insertScore } from "../../services/scoreService";
@@ -102,6 +103,9 @@ const Vocabulary = () => {
   const [isEdit, setIsEdit] = useState(false);
   const flatListRef = useRef();
   const [apiLoading, setApiLoading] = useState(false);
+  const [answer, setAnswer] = useState("");
+  const [choices, setChoices] = useState("");
+
 
   useEffect(() => {
     const fetchVocab = async () => {
@@ -141,39 +145,45 @@ const Vocabulary = () => {
     setIsEdit(true);
   };
 
+  const mapUUIDToChildName = (uuid) => {
+    const mapping = {
+      "e56a7fe1-0181-4293-a566-84cd07a384c6": "zakwan",
+      "3e4c5b1d-ccfb-4e93-8de2-c75c30e4642d": "naufal",
+      "aeffb8fa-547a-4c5e-8cf0-2a491816532e": "irfan",
+    };
+    return mapping[uuid] || null;
+  };
+  
+
   const onSubmit = async () => {
     setLoading(true);
     setModalVisible(false);
-
+  
+  
     let data = {
-      word: word,
-      translation: translation,
-      sentence: sentence,
+      word,
+      translation,
+      sentence,
+      answer,
+      choices: choices.split(",").map(item => item.trim()),
       user_id: user?.id,
+      child_id: mapUUIDToChildName(user?.id),
     };
 
-    let score = {
-      score: 1,
-      section: "vocab",
-      user_id: user?.id,
-    };
-
-    let resScore = await insertScore(score);
-
+  
     let res = await insertVocab(data);
-
+  
     if (res.success) {
       setVocab([res.data, ...vocab]);
-    } else {
-      // Handle error here, e.g., show a message
     }
-
+  
     setLoading(false);
     setWord("");
     setTranslation("");
     setSentence("");
     setIsEdit(false);
   };
+  
 
   const clearData = () => {
     setWord("");
@@ -277,6 +287,41 @@ const Vocabulary = () => {
               onChangeText={(text) => setSentence(text)}
               value={sentence}
             />
+
+              <TextInput
+                style={{
+                  height: 40,
+                  width: "100%",
+                  marginBottom: 10,
+                  borderWidth: 1,
+                  borderColor: "#ccc",
+                  borderRadius: 5,
+                  padding: 10,
+                  fontSize: 16,
+                  backgroundColor: "#f9f9f9",
+                }}
+                placeholder="Answer"
+                value={answer}
+                onChangeText={(text) => setAnswer(text)}
+              />
+
+              <TextInput
+                style={{
+                  height: 40,
+                  width: "100%",
+                  marginBottom: 10,
+                  borderWidth: 1,
+                  borderColor: "#ccc",
+                  borderRadius: 5,
+                  padding: 10,
+                  fontSize: 16,
+                  backgroundColor: "#f9f9f9",
+                }}
+                placeholder="Choices (comma separated)"
+                value={choices}
+                onChangeText={(text) => setChoices(text)}
+              />
+
             <View
               style={{
                 marginVertical: 12,
@@ -297,18 +342,28 @@ const Vocabulary = () => {
                     justifyContent: "center",
                     alignItems: "center",
                   }}
-                  onPress={() => {
+                  onPress={async () => {
                     setApiLoading(true);
-                    Promise.all([getTranslation(word), getSentence(word)])
-                      .then(([translationResult, sentenceResult]) => {
-                        setTranslation(translationResult);
-                        setSentence(sentenceResult);
-                        setApiLoading(false);
-                      })
-                      .catch(() => {
-                        setApiLoading(false);
-                      });
+                    try {
+                      const translationResult = await getTranslation(word);
+                      const sentenceResult = await getSentence(word);
+                      const choiceResult = await getAnswerAndChoicesFromWord(word, translationResult);
+                  
+                      setTranslation(translationResult);
+                      setSentence(sentenceResult);
+                  
+                      if (choiceResult) {
+                        setAnswer(choiceResult.answer);
+                        setChoices(choiceResult.choices.join(", "));
+                      }
+                  
+                    } catch (err) {
+                      console.error("Error in generating vocab fields:", err);
+                    }
+                    setApiLoading(false);
                   }}
+                  
+                  
                 >
                   {apiLoading ? (
                     <ActivityIndicator size="small" color="white" />
