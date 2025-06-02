@@ -146,54 +146,49 @@ const Vocabulary = () => {
   };
 
   const mapUUID = (id) => {
-    // Maps user IDs to child names for vocabulary tracking
-    const childIdInSupabase = {
+    if (!id) return null;
+  
+    const trimmedId = id.trim();
+    const childMap = {
       "e56a7fe1-0181-4293-a566-84cd07a384c6": "zakwan",
       "3e4c5b1d-ccfb-4e93-8de2-c75c30e4642d": "naufal",
       "aeffb8fa-547a-4c5e-8cf0-2a491816532e": "irfan",
     };
-    console.log(childIdInSupabase[id]);
-    // Return the mapped child name or null if ID not found
-    return childIdInSupabase[id] || null;
+  
+    return childMap[trimmedId] || null;
   };
+  
 
   const onSubmit = async () => {
     setLoading(true);
     setModalVisible(false);
-
+  
+    const mappedChild = mapUUID(user?.id);
+    console.log("Mapped Child:", mappedChild);
+  
     let data = {
-      word: word,
-      translation: translation,
-      sentence: sentence,
-      answer: answer,
+      word,
+      translation,
+      sentence,
+      answer,
       choices: choices.split(",").map(item => item.trim()),
       user_id: user?.id,
-      child_id: mapUUID(user?.id),
+      child_id: mappedChild, // Now should be proper value
     };
-    
-
-    let score = {
-      score: 1,
-      section: "vocab",
-      user_id: user?.id,
-    };
-
-    let resScore = await insertScore(score);
-
+  
     let res = await insertVocab(data);
-
+  
     if (res.success) {
       setVocab([res.data, ...vocab]);
-    } else {
-      // Handle error here, e.g., show a message
     }
-
+  
     setLoading(false);
     setWord("");
     setTranslation("");
     setSentence("");
     setIsEdit(false);
   };
+  
 
   const clearData = () => {
     setWord("");
