@@ -145,17 +145,13 @@ const Vocabulary = () => {
     setIsEdit(true);
   };
 
-  const mapUUID = (id) => {
-    if (!id) return null;
-  
-    const trimmedId = id.trim();
-    const childMap = {
+  const mapUUIDToChildName = (uuid) => {
+    const mapping = {
       "e56a7fe1-0181-4293-a566-84cd07a384c6": "zakwan",
       "3e4c5b1d-ccfb-4e93-8de2-c75c30e4642d": "naufal",
       "aeffb8fa-547a-4c5e-8cf0-2a491816532e": "irfan",
     };
-  
-    return childMap[trimmedId] || null;
+    return mapping[uuid] || null;
   };
   
 
@@ -163,8 +159,6 @@ const Vocabulary = () => {
     setLoading(true);
     setModalVisible(false);
   
-    const mappedChild = mapUUID(user?.id);
-    console.log("Mapped Child:", mappedChild);
   
     let data = {
       word,
@@ -173,10 +167,9 @@ const Vocabulary = () => {
       answer,
       choices: choices.split(",").map(item => item.trim()),
       user_id: user?.id,
-      child_id: 'zakwan', // Now should be proper value
+      child_id: mapUUIDToChildName(user?.id),
     };
 
-    console.log("Data:", data);
   
     let res = await insertVocab(data);
   
