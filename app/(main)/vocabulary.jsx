@@ -175,6 +175,8 @@ const Vocabulary = () => {
       user_id: user?.id,
       child_id: 'zakwan', // Now should be proper value
     };
+
+    console.log("Data:", data);
   
     let res = await insertVocab(data);
   
