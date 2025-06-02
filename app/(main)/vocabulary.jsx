@@ -146,14 +146,15 @@ const Vocabulary = () => {
   };
 
   const mapUUID = (id) => {
-
-   const childIdInSupabase = {
-    "e56a7fe1-0181-4293-a566-84cd07a384c6": "zakwan",
-    "3e4c5b1d-ccfb-4e93-8de2-c75c30e4642d": "naufal",
-    "aeffb8fa-547a-4c5e-8cf0-2a491816532e": "irfan",
-    
-   }
-    return childIdInSupabase[id];
+    // Maps user IDs to child names for vocabulary tracking
+    const childIdInSupabase = {
+      "e56a7fe1-0181-4293-a566-84cd07a384c6": "zakwan",
+      "3e4c5b1d-ccfb-4e93-8de2-c75c30e4642d": "naufal",
+      "aeffb8fa-547a-4c5e-8cf0-2a491816532e": "irfan",
+    };
+    console.log(childIdInSupabase[id]);
+    // Return the mapped child name or null if ID not found
+    return childIdInSupabase[id] || null;
   };
 
   const onSubmit = async () => {
