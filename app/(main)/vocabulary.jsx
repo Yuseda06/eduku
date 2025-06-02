@@ -145,6 +145,17 @@ const Vocabulary = () => {
     setIsEdit(true);
   };
 
+  const mapUUID = (id) => {
+
+   const childIdInSupabase = {
+    "e56a7fe1-0181-4293-a566-84cd07a384c6": "zakwan",
+    "3e4c5b1d-ccfb-4e93-8de2-c75c30e4642d": "naufal",
+    "aeffb8fa-547a-4c5e-8cf0-2a491816532e": "irfan",
+    
+   }
+    return childIdInSupabase[id];
+  };
+
   const onSubmit = async () => {
     setLoading(true);
     setModalVisible(false);
@@ -156,6 +167,7 @@ const Vocabulary = () => {
       answer: answer,
       choices: choices.split(",").map(item => item.trim()),
       user_id: user?.id,
+      child_id: mapUUID(user?.id),
     };
     
 
@@ -285,39 +297,39 @@ const Vocabulary = () => {
               value={sentence}
             />
 
-<TextInput
-  style={{
-    height: 40,
-    width: "100%",
-    marginBottom: 10,
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 5,
-    padding: 10,
-    fontSize: 16,
-    backgroundColor: "#f9f9f9",
-  }}
-  placeholder="Answer"
-  value={answer}
-  onChangeText={(text) => setAnswer(text)}
-/>
+              <TextInput
+                style={{
+                  height: 40,
+                  width: "100%",
+                  marginBottom: 10,
+                  borderWidth: 1,
+                  borderColor: "#ccc",
+                  borderRadius: 5,
+                  padding: 10,
+                  fontSize: 16,
+                  backgroundColor: "#f9f9f9",
+                }}
+                placeholder="Answer"
+                value={answer}
+                onChangeText={(text) => setAnswer(text)}
+              />
 
-<TextInput
-  style={{
-    height: 40,
-    width: "100%",
-    marginBottom: 10,
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 5,
-    padding: 10,
-    fontSize: 16,
-    backgroundColor: "#f9f9f9",
-  }}
-  placeholder="Choices (comma separated)"
-  value={choices}
-  onChangeText={(text) => setChoices(text)}
-/>
+              <TextInput
+                style={{
+                  height: 40,
+                  width: "100%",
+                  marginBottom: 10,
+                  borderWidth: 1,
+                  borderColor: "#ccc",
+                  borderRadius: 5,
+                  padding: 10,
+                  fontSize: 16,
+                  backgroundColor: "#f9f9f9",
+                }}
+                placeholder="Choices (comma separated)"
+                value={choices}
+                onChangeText={(text) => setChoices(text)}
+              />
 
             <View
               style={{
