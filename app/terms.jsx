@@ -14,7 +14,7 @@ const Terms = () => {
       <StatusBar style="dark" />
       <View style={styles.container}>
         <View style={styles.contentContainer}>
-          <Text style={styles.title}>Terms of Use for Eduku Score</Text>
+          <Text style={styles.title}>Terms of Use for Eduku</Text>
           <Text style={styles.date}>Effective Date: June 02, 2025</Text>
           
           <View style={styles.termsContainer}>
