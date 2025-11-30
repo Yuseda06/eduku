@@ -31,20 +31,26 @@ import { Input } from "@rneui/themed";
 
 const CreateEssay = () => {
   const { user } = useAuth();
-  const bodyRef = useRef("");
-  const editorRef = useRef(null);
-
+  const [essayBody, setEssayBody] = useState("");
   const titleRef = useRef("");
-  const editorTitleRef = useRef(null);
 
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [file, setFile] = useState(false);
 
   const onSubmit = async () => {
+    if (!titleRef.current.trim()) {
+      Alert.alert("Error", "Please enter a title");
+      return;
+    }
+    if (!essayBody.trim()) {
+      Alert.alert("Error", "Please enter essay content");
+      return;
+    }
+
     let data = {
       title: titleRef.current,
-      essay: bodyRef.current,
+      essay: essayBody,
       userId: user?.id,
     };
 
@@ -53,8 +59,8 @@ const CreateEssay = () => {
     setLoading(false);
 
     if (res.success) {
-      bodyRef.current = "";
-      editorRef.current?.setContentHTML("");
+      titleRef.current = "";
+      setEssayBody("");
       router.navigate("essay");
     } else {
       Alert.alert("Post", res.msg);
@@ -81,7 +87,7 @@ const CreateEssay = () => {
             </View>
 
             <View style={styles.textEditor}>
-              <View style={{ flexDirection: "column" }}>
+              <View style={{ flexDirection: "column", marginBottom: 20 }}>
                 <Text
                   style={[styles.publicText, { marginLeft: 10, marginTop: 10 }]}
                 >
@@ -90,10 +96,23 @@ const CreateEssay = () => {
                 <Input onChangeText={(text) => (titleRef.current = text)} />
               </View>
 
-              {/* <RichTextEditor
-                editorRef={editorRef}
-                onChange={(body) => (bodyRef.current = body)}
-              /> */}
+              <View style={{ flexDirection: "column" }}>
+                <Text
+                  style={[styles.publicText, { marginLeft: 10, marginTop: 10 }]}
+                >
+                  Essay Content
+                </Text>
+                <TextInput
+                  style={styles.essayInput}
+                  placeholder="Write your essay here..."
+                  placeholderTextColor={theme.colors.textLight}
+                  multiline
+                  numberOfLines={10}
+                  textAlignVertical="top"
+                  value={essayBody}
+                  onChangeText={setEssayBody}
+                />
+              </View>
             </View>
           </ScrollView>
 
@@ -150,7 +169,16 @@ const styles = StyleSheet.create({
   },
   textEditor: {
     flex: 1,
-    // backgroundColor: "red",
+  },
+  essayInput: {
+    minHeight: hp(30),
+    borderWidth: 1.5,
+    borderColor: theme.colors.gray,
+    borderRadius: theme.radius.xl,
+    padding: 15,
+    fontSize: hp(1.8),
+    color: theme.colors.text,
+    textAlignVertical: "top",
   },
   media: {
     flexDirection: "row",

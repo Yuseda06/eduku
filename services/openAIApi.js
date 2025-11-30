@@ -101,26 +101,46 @@ export const generateSpeechToFile = async (inputText) => {
       body: JSON.stringify({ text: inputText }),
     });
 
-    const { audioBase64 } = await response.json();
-    const uri = `${FileSystem.cacheDirectory}speech.mp3`;
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
 
-    const soundObject = new Audio.Sound();
+    const data = await response.json();
+    const { audioBase64 } = data;
+
+    if (!audioBase64) {
+      throw new Error("No audio data received");
+    }
 
     if (Platform.OS === "web") {
-      await soundObject.loadAsync({
-        uri: `data:audio/mp3;base64,${audioBase64}`,
+      // Use HTML5 Audio for web - more reliable than expo-av
+      const audio = new Audio(`data:audio/mp3;base64,${audioBase64}`);
+      return new Promise((resolve, reject) => {
+        audio.onended = () => resolve(true);
+        audio.onerror = (e) => {
+          console.error("Audio playback error:", e);
+          reject(e);
+        };
+        audio.play().catch((err) => {
+          console.error("Audio play error:", err);
+          reject(err);
+        });
       });
     } else {
+      // Use expo-av for native
+      const uri = `${FileSystem.cacheDirectory}speech.mp3`;
       await FileSystem.writeAsStringAsync(uri, audioBase64, {
         encoding: FileSystem.EncodingType.Base64,
       });
-      await soundObject.loadAsync({ uri });
-    }
 
-    await soundObject.playAsync();
-    return uri;
+      const soundObject = new Audio.Sound();
+      await soundObject.loadAsync({ uri });
+      await soundObject.playAsync();
+      return uri;
+    }
   } catch (err) {
     console.error("Error generating and playing speech to file:", err);
+    throw err; // Re-throw so caller can handle fallback
   }
 };
 

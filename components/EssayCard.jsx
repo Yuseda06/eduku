@@ -118,16 +118,71 @@ const EssayCard = ({ item, currentUser, hasShadow = true, allUsers }) => {
   };
 
   const handleWordPress = (word) => {
-    console.log("Word pressed:", word); // Debug log
-    try {
-      // Clean the word of punctuation for pronunciation
-      const cleanWord = word.replace(/[.,!?;:()\[\]{}'"]/g, "");
-      if (cleanWord.trim()) {
-        console.log("Speaking:", cleanWord.trim());
-        Speech.speak(cleanWord.trim(), { language: "en" });
+    // Clean the word of punctuation for pronunciation
+    const cleanWord = word.replace(/[.,!?;:()\[\]{}'"]/g, "");
+    if (!cleanWord.trim()) return;
+
+    const wordToSpeak = cleanWord.trim();
+
+    // Use Web Speech API on web for better quality
+    if (
+      Platform.OS === "web" &&
+      typeof window !== "undefined" &&
+      "speechSynthesis" in window
+    ) {
+      // Stop any ongoing speech
+      window.speechSynthesis.cancel();
+
+      const utterance = new window.SpeechSynthesisUtterance(wordToSpeak);
+      utterance.lang = "en-US";
+      utterance.rate = 0.9; // Slightly slower for clarity
+      utterance.pitch = 1.0;
+      utterance.volume = 1.0;
+
+      // Function to get and set the best available voice
+      const setBestVoice = () => {
+        const voices = window.speechSynthesis.getVoices();
+
+        // Priority order: Google, Microsoft, Natural, then any English voice
+        const preferredVoice =
+          voices.find(
+            (voice) =>
+              voice.lang.startsWith("en") &&
+              (voice.name.includes("Google") ||
+                voice.name.includes("Google US"))
+          ) ||
+          voices.find(
+            (voice) =>
+              voice.lang.startsWith("en") &&
+              (voice.name.includes("Microsoft") || voice.name.includes("Zira"))
+          ) ||
+          voices.find(
+            (voice) =>
+              voice.lang.startsWith("en") && voice.name.includes("Natural")
+          ) ||
+          voices.find((voice) => voice.lang.startsWith("en-US")) ||
+          voices.find((voice) => voice.lang.startsWith("en"));
+
+        if (preferredVoice) {
+          utterance.voice = preferredVoice;
+        }
+      };
+
+      // Try to get voices immediately
+      setBestVoice();
+
+      // If voices aren't loaded yet, wait for the voiceschanged event
+      if (window.speechSynthesis.getVoices().length === 0) {
+        window.speechSynthesis.onvoiceschanged = () => {
+          setBestVoice();
+          window.speechSynthesis.speak(utterance);
+        };
+      } else {
+        window.speechSynthesis.speak(utterance);
       }
-    } catch (error) {
-      console.error("Error speaking word:", error);
+    } else {
+      // Fallback to expo-speech for native platforms
+      Speech.speak(wordToSpeak, { language: "en" });
     }
   };
 
@@ -135,9 +190,7 @@ const EssayCard = ({ item, currentUser, hasShadow = true, allUsers }) => {
   const splitIntoWords = (text) => {
     if (!text) return [];
     // Split by spaces and filter out empty strings
-    const words = text.split(/\s+/).filter((word) => word.length > 0);
-    console.log("Split words:", words); // Debug log
-    return words;
+    return text.split(/\s+/).filter((word) => word.length > 0);
   };
 
   const translate = async (text, sourceLanguage, targetLanguage) => {
@@ -222,9 +275,24 @@ const EssayCard = ({ item, currentUser, hasShadow = true, allUsers }) => {
               const words = splitIntoWords(sentence);
               return words.map((word, index) => {
                 const handleClick = () => {
-                  console.log("Word clicked:", word);
                   handleWordPress(word);
                 };
+
+                if (Platform.OS === "web") {
+                  return (
+                    <Pressable
+                      key={`word-${index}-${word}`}
+                      onPress={handleClick}
+                      style={({ pressed }) => [
+                        styles.wordPressableWeb,
+                        pressed && { opacity: 0.6 },
+                      ]}
+                    >
+                      <Text style={styles.essayText}>{word}</Text>
+                      {index < words.length - 1 ? <Text> </Text> : null}
+                    </Pressable>
+                  );
+                }
 
                 return (
                   <TouchableOpacity
@@ -337,14 +405,20 @@ const styles = StyleSheet.create({
     paddingHorizontal: 2,
     minHeight: 20,
     justifyContent: "center",
-    ...(Platform.OS === "web" && {
-      cursor: "pointer",
-      display: "inline-block",
-      userSelect: "none",
-      WebkitUserSelect: "none",
-      zIndex: 10,
-      position: "relative",
-    }),
+  },
+  wordPressableWeb: {
+    marginRight: 2,
+    paddingVertical: 4,
+    paddingHorizontal: 2,
+    display: "inline-block",
+    cursor: "pointer",
+    userSelect: "none",
+    WebkitUserSelect: "none",
+    MozUserSelect: "none",
+    msUserSelect: "none",
+    WebkitTouchCallout: "none",
+    zIndex: 10,
+    position: "relative",
   },
   wordPressed: {
     opacity: 0.6,
@@ -353,12 +427,10 @@ const styles = StyleSheet.create({
     fontSize: hp(2),
     color: theme.colors.primary,
     lineHeight: hp(3),
-    ...(Platform.OS === "web" && {
-      cursor: "pointer",
-      userSelect: "none",
-      WebkitUserSelect: "none",
-      display: "inline",
-      padding: "2px 1px",
-    }),
+    display: "inline",
+    pointerEvents: "none",
+    userSelect: "none",
+    WebkitUserSelect: "none",
+    cursor: "inherit",
   },
 });
