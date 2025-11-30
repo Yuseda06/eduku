@@ -161,10 +161,6 @@ const EssayCard = ({ item, currentUser, hasShadow = true, allUsers }) => {
     }
   };
 
-  useEffect(() => {
-    setSentence(item?.essay.replace(/<\/?[^>]+(>|$)/g, ""));
-  }, []);
-
   return (
     <View style={[styles.container, hasShadow && shadowStyles]}>
       <View style={styles.header}>
@@ -222,27 +218,30 @@ const EssayCard = ({ item, currentUser, hasShadow = true, allUsers }) => {
 
         <View style={styles.postBody}>
           <View style={styles.essayTextContainer}>
-            {splitIntoWords(sentence).map((word, index) => {
-              const handleClick = () => {
-                console.log("Word clicked:", word);
-                handleWordPress(word);
-              };
+            {(() => {
+              const words = splitIntoWords(sentence);
+              return words.map((word, index) => {
+                const handleClick = () => {
+                  console.log("Word clicked:", word);
+                  handleWordPress(word);
+                };
 
-              return (
-                <TouchableOpacity
-                  key={`word-${index}-${word}`}
-                  onPress={handleClick}
-                  activeOpacity={0.7}
-                  style={styles.wordPressable}
-                  hitSlop={{ top: 5, bottom: 5, left: 2, right: 2 }}
-                >
-                  <Text style={styles.essayText} pointerEvents="none">
-                    {word}
-                    {index < splitIntoWords(sentence).length - 1 ? " " : ""}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
+                return (
+                  <TouchableOpacity
+                    key={`word-${index}-${word}`}
+                    onPress={handleClick}
+                    activeOpacity={0.7}
+                    style={styles.wordPressable}
+                    hitSlop={{ top: 5, bottom: 5, left: 2, right: 2 }}
+                  >
+                    <Text style={styles.essayText} pointerEvents="none">
+                      {word}
+                      {index < words.length - 1 ? " " : ""}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              });
+            })()}
           </View>
         </View>
       </View>
