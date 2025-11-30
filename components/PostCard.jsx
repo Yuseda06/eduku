@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View, Platform } from "react-native";
 import React from "react";
 import { theme } from "../constants/theme";
 import { hp, wp } from "../helpers/common";
@@ -28,17 +28,21 @@ const tagsStyles = {
   },
 };
 
-
 const PostCard = ({ item, currentUser, router, hasShadow = true }) => {
-  const shadowStyles = {
-    shadowOffset: {
-      width: 0,
-      height: 2,
+  const shadowStyles = Platform.select({
+    web: {
+      boxShadow: "0px 2px 6px rgba(0, 0, 0, 0.06)",
     },
-    shadowOpacity: 0.06,
-    shadowRadius: 6,
-    elevation: 1,
-  };
+    default: {
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
+      shadowOpacity: 0.06,
+      shadowRadius: 6,
+      elevation: 1,
+    },
+  });
 
   const createdAt = moment(item?.created_at).format("MMM D");
 
@@ -147,7 +151,7 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     borderWidth: 0.5,
     borderColor: theme.colors.gray,
-    shadowColor: "#000",
+    ...(Platform.OS === "web" ? {} : { shadowColor: "#000" }),
   },
   header: {
     flexDirection: "row",

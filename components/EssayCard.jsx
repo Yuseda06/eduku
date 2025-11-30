@@ -6,6 +6,8 @@ import {
   TouchableOpacity,
   Alert,
   Image,
+  Pressable,
+  Platform,
 } from "react-native";
 import { theme } from "../constants/theme";
 import { hp, wp } from "../helpers/common";
@@ -22,8 +24,6 @@ import * as ScreenOrientation from "expo-screen-orientation";
 import { deleteEssay } from "../services/essayService";
 import { useRouter } from "expo-router";
 import { getUserData } from "../services/userService";
-
-
 
 const textStyles = {
   color: theme.colors.dark,
@@ -68,15 +68,20 @@ const EssayCard = ({ item, currentUser, hasShadow = true, allUsers }) => {
     }
   }, [allUsers, item.userId]);
 
-  const shadowStyles = {
-    shadowOffset: {
-      width: 0,
-      height: 2,
+  const shadowStyles = Platform.select({
+    web: {
+      boxShadow: "0px 2px 6px rgba(0, 0, 0, 0.06)",
     },
-    shadowOpacity: 0.06,
-    shadowRadius: 6,
-    elevation: 1,
-  };
+    default: {
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
+      shadowOpacity: 0.06,
+      shadowRadius: 6,
+      elevation: 1,
+    },
+  });
 
   const createdAt = moment(item?.created_at).format("MMM D, h:mm A");
 
@@ -113,7 +118,26 @@ const EssayCard = ({ item, currentUser, hasShadow = true, allUsers }) => {
   };
 
   const handleWordPress = (word) => {
-    Speech.speak(word);
+    console.log("Word pressed:", word); // Debug log
+    try {
+      // Clean the word of punctuation for pronunciation
+      const cleanWord = word.replace(/[.,!?;:()\[\]{}'"]/g, "");
+      if (cleanWord.trim()) {
+        console.log("Speaking:", cleanWord.trim());
+        Speech.speak(cleanWord.trim(), { language: "en" });
+      }
+    } catch (error) {
+      console.error("Error speaking word:", error);
+    }
+  };
+
+  // Split text into words for rendering
+  const splitIntoWords = (text) => {
+    if (!text) return [];
+    // Split by spaces and filter out empty strings
+    const words = text.split(/\s+/).filter((word) => word.length > 0);
+    console.log("Split words:", words); // Debug log
+    return words;
   };
 
   const translate = async (text, sourceLanguage, targetLanguage) => {
@@ -197,40 +221,28 @@ const EssayCard = ({ item, currentUser, hasShadow = true, allUsers }) => {
         </Text>
 
         <View style={styles.postBody}>
-          <View style={{ flexDirection: "column", marginBottom: 40 }}>
-            {sentence.split(". ").map((sentencePart, index) => (
-              <TouchableOpacity
-                key={index}
-                onPress={() => handleTranslate(sentencePart)}
-              >
-                <View
-                  style={{
-                    flexDirection: "row",
-                    flexWrap: "wrap",
-                    padding: 10,
-                    backgroundColor: "#f0f0f0",
-                    borderRadius: 8,
-                    marginBottom: 10,
-                  }}
+          <View style={styles.essayTextContainer}>
+            {splitIntoWords(sentence).map((word, index) => {
+              const handleClick = () => {
+                console.log("Word clicked:", word);
+                handleWordPress(word);
+              };
+
+              return (
+                <TouchableOpacity
+                  key={`word-${index}-${word}`}
+                  onPress={handleClick}
+                  activeOpacity={0.7}
+                  style={styles.wordPressable}
+                  hitSlop={{ top: 5, bottom: 5, left: 2, right: 2 }}
                 >
-                  {sentencePart.split(" ").map((word, wordIndex) => (
-                    <TouchableOpacity
-                      key={wordIndex}
-                      onPress={() => handleWordPress(word)}
-                      onLongPress={() => handleTranslate(word)}
-                      style={{ marginRight: 2 }}
-                    >
-                      <Text style={{ fontSize: 18 }}>
-                        {word +
-                          (wordIndex < sentencePart.split(" ").length - 1
-                            ? " "
-                            : "")}
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              </TouchableOpacity>
-            ))}
+                  <Text style={styles.essayText} pointerEvents="none">
+                    {word}
+                    {index < splitIntoWords(sentence).length - 1 ? " " : ""}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
           </View>
         </View>
       </View>
@@ -252,7 +264,7 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     borderWidth: 0.5,
     borderColor: theme.colors.gray,
-    shadowColor: "#000",
+    ...(Platform.OS === "web" ? {} : { shadowColor: "#000" }),
     height: "auto",
   },
   header: {
@@ -309,5 +321,45 @@ const styles = StyleSheet.create({
   count: {
     color: theme.colors.text,
     fontSize: hp(1.8),
+  },
+  essayTextContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    marginTop: 20,
+    marginBottom: 40,
+    paddingHorizontal: 5,
+    ...(Platform.OS === "web" && {
+      pointerEvents: "auto",
+    }),
+  },
+  wordPressable: {
+    marginRight: 2,
+    paddingVertical: 4,
+    paddingHorizontal: 2,
+    minHeight: 20,
+    justifyContent: "center",
+    ...(Platform.OS === "web" && {
+      cursor: "pointer",
+      display: "inline-block",
+      userSelect: "none",
+      WebkitUserSelect: "none",
+      zIndex: 10,
+      position: "relative",
+    }),
+  },
+  wordPressed: {
+    opacity: 0.6,
+  },
+  essayText: {
+    fontSize: hp(2),
+    color: theme.colors.primary,
+    lineHeight: hp(3),
+    ...(Platform.OS === "web" && {
+      cursor: "pointer",
+      userSelect: "none",
+      WebkitUserSelect: "none",
+      display: "inline",
+      padding: "2px 1px",
+    }),
   },
 });

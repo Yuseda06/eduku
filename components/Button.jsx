@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View, Platform } from "react-native";
 import React from "react";
 import { theme } from "../constants/theme";
 import { hp, wp } from "../helpers/common";
@@ -12,16 +12,21 @@ const Button = ({
   title = "",
   onPress = () => {},
 }) => {
-  const shadowStyle = {
-    shadowColor: theme.colors.dark,
-    shadowOffset: {
-      width: 0,
-      height: 10,
+  const shadowStyle = Platform.select({
+    web: {
+      boxShadow: "0px 10px 8px rgba(62, 62, 62, 0.2)",
     },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 4,
-  };
+    default: {
+      shadowColor: theme.colors.dark,
+      shadowOffset: {
+        width: 0,
+        height: 10,
+      },
+      shadowOpacity: 0.2,
+      shadowRadius: 8,
+      elevation: 4,
+    },
+  });
 
   if (loading) {
     return (
