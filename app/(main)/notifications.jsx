@@ -98,7 +98,7 @@ const CreateEssay = () => {
 
               <View style={{ flexDirection: "column" }}>
                 <Text
-                  style={[styles.publicText, { marginLeft: 10, marginTop: 10 }]}
+                  style={[styles.publicText, { marginLeft: 10, marginTop: 20 }]}
                 >
                   Essay Content
                 </Text>

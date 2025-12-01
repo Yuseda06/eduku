@@ -101,7 +101,70 @@ const EssayCard = ({ item, currentUser, hasShadow = true, allUsers }) => {
   }, []);
 
   const handleSentencePress = async (sentence) => {
-    Speech.speak(sentence);
+    if (!sentence || !sentence.trim()) return;
+
+    const sentenceToSpeak = sentence.trim();
+
+    // Use Web Speech API on web for better quality
+    if (
+      Platform.OS === "web" &&
+      typeof window !== "undefined" &&
+      "speechSynthesis" in window
+    ) {
+      // Stop any ongoing speech
+      window.speechSynthesis.cancel();
+
+      const utterance = new window.SpeechSynthesisUtterance(sentenceToSpeak);
+      utterance.lang = "en-US";
+      utterance.rate = 0.9; // Slightly slower for clarity
+      utterance.pitch = 1.0;
+      utterance.volume = 1.0;
+
+      // Function to get and set the best available voice
+      const setBestVoice = () => {
+        const voices = window.speechSynthesis.getVoices();
+
+        // Priority order: Google, Microsoft, Natural, then any English voice
+        const preferredVoice =
+          voices.find(
+            (voice) =>
+              voice.lang.startsWith("en") &&
+              (voice.name.includes("Google") ||
+                voice.name.includes("Google US"))
+          ) ||
+          voices.find(
+            (voice) =>
+              voice.lang.startsWith("en") &&
+              (voice.name.includes("Microsoft") || voice.name.includes("Zira"))
+          ) ||
+          voices.find(
+            (voice) =>
+              voice.lang.startsWith("en") && voice.name.includes("Natural")
+          ) ||
+          voices.find((voice) => voice.lang.startsWith("en-US")) ||
+          voices.find((voice) => voice.lang.startsWith("en"));
+
+        if (preferredVoice) {
+          utterance.voice = preferredVoice;
+        }
+      };
+
+      // Try to get voices immediately
+      setBestVoice();
+
+      // If voices aren't loaded yet, wait for the voiceschanged event
+      if (window.speechSynthesis.getVoices().length === 0) {
+        window.speechSynthesis.onvoiceschanged = () => {
+          setBestVoice();
+          window.speechSynthesis.speak(utterance);
+        };
+      } else {
+        window.speechSynthesis.speak(utterance);
+      }
+    } else {
+      // Fallback to expo-speech for native platforms
+      Speech.speak(sentenceToSpeak, { language: "en" });
+    }
   };
 
   const handleTranslate = async (word) => {
