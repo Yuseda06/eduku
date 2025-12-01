@@ -116,7 +116,7 @@ const EssayCard = ({ item, currentUser, hasShadow = true, allUsers }) => {
 
       const utterance = new window.SpeechSynthesisUtterance(sentenceToSpeak);
       utterance.lang = "en-US";
-      utterance.rate = 0.9; // Slightly slower for clarity
+      utterance.rate = 0.7; // Slower for better clarity
       utterance.pitch = 1.0;
       utterance.volume = 1.0;
 
@@ -198,7 +198,7 @@ const EssayCard = ({ item, currentUser, hasShadow = true, allUsers }) => {
 
       const utterance = new window.SpeechSynthesisUtterance(wordToSpeak);
       utterance.lang = "en-US";
-      utterance.rate = 0.9; // Slightly slower for clarity
+      utterance.rate = 0.7; // Slower for better clarity
       utterance.pitch = 1.0;
       utterance.volume = 1.0;
 
@@ -321,10 +321,10 @@ const EssayCard = ({ item, currentUser, hasShadow = true, allUsers }) => {
             styles.username,
             {
               marginTop: 30,
-              fontSize: hp(2.6),
+              fontSize: hp(2.0),
               fontFamily: "arial",
               fontWeight: "600",
-              textAlign: "center",
+              textAlign: "Center",
               color: theme.colors.primary,
             },
           ]}
@@ -488,7 +488,7 @@ const styles = StyleSheet.create({
   },
   essayText: {
     fontSize: hp(2),
-    color: theme.colors.primary,
+    color: theme.colors.textLight,
     lineHeight: hp(3),
     display: "inline",
     pointerEvents: "none",
