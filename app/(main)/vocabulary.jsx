@@ -17,6 +17,7 @@ import Icon from "../../assets/icons";
 import { hp } from "../../helpers/common";
 import { theme } from "../../constants/theme";
 import { useRouter } from "expo-router";
+import * as Speech from "expo-speech";
 import {
   fetchAllVocab,
   insertVocab,
@@ -27,11 +28,9 @@ import { FlatList } from "react-native";
 import { useAuth } from "../../contexts/AuthContext";
 
 import {
-  playTextAsSpeech,
   getTranslation,
   generateImage,
   getSentence,
-  generateSpeechToFile,
   getAnswerAndChoicesFromWord,
 } from "../../services/openAIApi";
 
@@ -87,6 +86,16 @@ const styles = StyleSheet.create({
     marginLeft: 5,
   },
 });
+
+const speakText = (text) => {
+  if (!text || !text.trim()) return;
+
+  Speech.stop();
+  Speech.speak(text.trim(), {
+    language: "en",
+    rate: 0.8,
+  });
+};
 
 const Vocabulary = () => {
   const { user } = useAuth();
@@ -499,8 +508,7 @@ const Vocabulary = () => {
                     backgroundColor: theme.colors.primary,
                   }}
                   onPress={() => {
-                    // playTextAsSpeech(item.word);
-                    generateSpeechToFile(item.word);
+                    speakText(item.word);
                   }}
                 >
                   <Text style={styles.userName}>
@@ -516,8 +524,7 @@ const Vocabulary = () => {
               <View>
                 <TouchableOpacity
                   onPress={() => {
-                    // getSpeakSentence(item.sentence);
-                    generateSpeechToFile(item.sentence);
+                    speakText(item.sentence);
                   }}
                 >
                   <View
